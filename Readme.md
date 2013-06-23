@@ -1,17 +1,19 @@
 
-# familyfound
+# FamilyFound
 
   Streamlining family history research
 
-## Installation
+## Building
 
-  Install with [component(1)](http://component.io):
+run `make`
 
-    $ component install familyfound/familyfound
+## Configuring
 
-## API
+Look at `config.yaml.sample`. Create your own config parameters in `config.yaml`.
 
+## Running
 
+`make serve`
 
 ## License
 
