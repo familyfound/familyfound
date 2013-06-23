@@ -1,0 +1,5 @@
+OAUTH_KEY: <key from familysearch.org>
+OAUTH_SECRET: 
+HOST: <the hostname you'll be serving up. needed for OAuth>
+SECRET: <some random string of chars. used for secure cookies, etc.>
+PORT: 3000
