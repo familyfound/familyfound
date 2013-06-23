@@ -1,0 +1,28 @@
+{
+  "name": "familyfound",
+  "repo": "familyfound/familyfound",
+  "description": "Streamlining family history research",
+  "version": "0.0.1",
+  "keywords": [],
+  "dependencies": {
+    "visionmedia/superagent": "*",
+    "btknorr/bootstrap": "*",
+    "jabapyth/Font-Awesome": "*",
+    "jabapyth/angularjs": "*",
+    "notablemind/angular-resource": "*",
+    "notablemind/settings": "*",
+    "notablemind/angular-settings": "*",
+    "notablemind/loco": "*",
+    "component/dialog": "*"
+  },
+  "development": {},
+  "license": "MIT",
+  "main": "assets/index.js",
+  "scripts": [
+    "assets/oauth.js",
+    "assets/index.js"
+  ],
+  "styles": [
+    "assets/styl/index.styl"
+  ]
+}

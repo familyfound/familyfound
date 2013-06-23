@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html ng-app="familyfound">
+  <head>
+    <title>Home | FamilyFound</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link href="/css/build.css" rel="stylesheet" media="screen">
+  </head>
+  <body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container"><a data-toggle="collapse" data-target=".nav-collapse" class="btn btn-navbar"><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></a><a href="#" class="brand"><span>NotableMind</span></a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li><a href="/"><span>Home</span></a></li>
+              <li><a href="#about"><span>About</span></a></li>
+              <li><a href="https://github.com/familyfound/familyfound/issues" target="_blank"><span>Issues</span></a></li>
+              <li><a href="/settings" class="icon"><i class="icon-cog icon-light"></i></a></li>
+              <li><a href="https://github.com/familyfound/familyfound/" target="_blank" class="icon"><i class="icon-github icon-light"></i></a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      <div id="pages" ng-view class="row-fluid"></div>
+      <div class="templates">
+        <script id="personView.html" type="text/ng-template">
+          <div data-person="rootPerson" class="person top-person"></div>
+        </script>
+        <script id="settings.html" type="text/ng-template">
+          <div data-settings-manager="familyfound" class="settings-manager">
+            You will see your settings in good time.
+            
+          </div>
+        </script>
+      </div>
+    </div>
+    <script src="/js/build.js"></script>
+    <script>
+      var ff = require('familyfound');
+      
+    </script>
+  </body>
+</html>

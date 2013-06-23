@@ -1,0 +1,22 @@
+extends bootstrap
+
+block headtitle
+  title Home | FamilyFound
+
+block bodytitle
+  span They are waiting.
+
+block container
+    #pages.row-fluid(ng-view)
+    .templates
+      script(id='personView.html', type='text/ng-template')
+        .person.top-person(data-person='rootPerson')
+      script(id="settings.html", type="text/ng-template")
+        .settings-manager(data-settings-manager='familyfound').
+          You will see your settings in good time.
+
+append endjs
+  script(src="/js/build.js")
+  script.
+    var ff = require('familyfound');
+

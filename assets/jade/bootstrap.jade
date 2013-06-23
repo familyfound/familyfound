@@ -1,0 +1,30 @@
+extends base
+
+block body
+  div.navbar.navbar-inverse.navbar-fixed-top
+    .navbar-inner
+      .container
+        a.btn.btn-navbar(data-toggle='collapse', data-target='.nav-collapse')
+          span.icon-bar
+          span.icon-bar
+          span.icon-bar
+        a.brand(href='#')
+          block projectname
+            span NotableMind
+        .nav-collapse.collapse
+          ul.nav
+            block navitems
+              each item in nav
+                li
+                  a(href=item.path, target=item.target, class=(item.icon ? 'icon' : ''))
+                    if item.icon
+                      i(class=item.icon+' icon-light')
+                    if item.name
+                      span= item.name
+            block extra-nav
+  .container
+    block container
+      h1
+        block bodytitle
+          span This is the Title ? maybe? 
+      block inner

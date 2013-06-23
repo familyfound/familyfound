@@ -1,0 +1,12 @@
+!!!
+html
+  head
+    title= title
+  body
+    h1= title
+    script.
+      if (!window.parent || window.parent === window) {
+        location.href = "/";
+      } else {
+        window.parent.authCallback(!{JSON.stringify(response)});
+      }
