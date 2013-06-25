@@ -13,7 +13,7 @@ build/build.js: static/index.html $(stylus_files) $(javascript_files)
 	@echo "Component build"
 	@component build --dev --use component-stylus
 
-local_build: components node_modules static/index.html $(stylus_files) $(javascript_files)
+local_build: node_modules components static/index.html $(stylus_files) $(javascript_files)
 	@./node_modules/.bin/component build --dev --use component-stylus
 
 components: component.json
