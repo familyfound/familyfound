@@ -1,1 +1,1 @@
-web: DEBUG=familyfound:*,familysearch:* make heroku
+web: make heroku
