@@ -151,6 +151,10 @@ function hostChecker(req, res, next) {
   }
   var host = protocol + '://' + req.headers.host.split(':')[0];
   if (host !== config.HOST) {
+    if (protocol == 'http' && 'https://' + req.headers.host.split(':')[0] === config.HOST) {
+      debug('redirecting to https');
+      return res.redirect(config.HOST);
+    }
     debug('Got request from invalid host', host, req.headers.host, config.HOST);
     return res.send(404, 'Wrong host');
   }
