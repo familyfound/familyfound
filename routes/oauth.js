@@ -39,7 +39,7 @@ function getData(token, next) {
 // Create the rule to start the login process on Twitter
 function check_login(req, res) {
   if (req.session.oauth && req.session.oauth.access_token) {
-    res.cookie('oauth', req.session.oauth.access_token);
+    res.cookie('already oauthed', req.session.oauth.access_token);
     return getData(req.session.oauth.access_token, function (err, data) {
       if (err) {
         debug('Error check-login get data. Probably old session', err);
@@ -60,11 +60,11 @@ function check_login(req, res) {
       return res.send({authorized: false,
                 error: 'Unable to connect to familysearch.org for authorization'});
     }
-    debug('step 1 successful');
     req.session.oauth = {
       token: token,
       secret: secret
     };
+    debug('step 1 successful', req.session.oauth);
 
     res.send({authorized: false, url: API_BASE + 'authorize?oauth_token=' + token});
   });
@@ -119,8 +119,17 @@ function callback(req, res) {
   );
 } 
 
+function hostChecker(req, res, next) {
+  var host = (req.connection.enctrypted ? 'https' : 'http') + '://' + req.headers.host.split(':')[0];
+  if (host !== config.HOST) {
+    return res.send(404, 'Wrong host');
+  }
+  return next();
+}
+
 exports.addRoutes = function (app) {
-  app.get('/oauth/check-login', check_login);
-  app.get(callback_path, callback);
+  app.get('/oauth/check-login', hostChecker, check_login);
+  app.get(callback_path, hostChecker, callback);
 };
+exports.hostChecker = hostChecker;
 

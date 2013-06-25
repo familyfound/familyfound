@@ -42,11 +42,11 @@ var index = function(req, res) {
   res.send(fs.readFileSync(path.join(__dirname, 'static', 'index.html')).toString('utf8'));
 };
 
-app.get('/', index);
+app.get('/', oauth.hostChecker, index);
 
 var pages = require('./assets/pages');
 Object.keys(pages.routes).forEach(function(page){
-  app.get(page, index);
+  app.get(page, oauth.hostChecker, index);
 });
 
 db.onload(function () {
