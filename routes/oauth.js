@@ -143,7 +143,13 @@ function callback(req, res) {
 } 
 
 function hostChecker(req, res, next) {
-  var host = req.protocol + '://' + req.headers.host.split(':')[0];
+  var protocol;
+  if (req.headers['x-forwarded-proto']) {
+    protocol = req.headers['x-forwarded-proto'];
+  } else {
+    protocol = req.protocol;
+  }
+  var host = protocol + '://' + req.headers.host.split(':')[0];
   if (host !== config.HOST) {
     debug('Got request from invalid host', host, req.headers.host, config.HOST);
     return res.send(404, 'Wrong host');
