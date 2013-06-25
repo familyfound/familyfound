@@ -8,8 +8,8 @@ var OAuth = require('oauth').OAuth
   , config = require('../config.yaml')
   , callback_path = '/oauth/callback'
   , API_BASE = 'https://api.familysearch.org/identity/v2/'
-  , oa = createOAuth(API_BASE, config.OAUTH_KEY, config.OAUTH_SECRET,
-                     config.HOST + ':' + config.PORT + callback_path);
+  , callback_uri = config.HOST + (config.PORT ? ':' + config.PORT : '') + callback_path
+  , oa = createOAuth(API_BASE, config.OAUTH_KEY, config.OAUTH_SECRET, callback_uri);
 
 var Unauthorized = function () {
   Error.apply(this, arguments);
