@@ -8,6 +8,7 @@ var express = require('express')
   , path = require('path')
   , fs = require('fs')
 
+  , db = require('./lib/db')
   , config = require('./config.yaml')
   , oauth = require('./routes/oauth')
   , api = require('./routes/api');
@@ -46,6 +47,8 @@ Object.keys(pages.routes).forEach(function(page){
   app.get(page, index);
 });
 
-server.listen(app.get('port'), function(){
-  console.log('Express server listening on port ' + app.get('port'));
+db.onload(function () {
+  server.listen(app.get('port'), function(){
+    console.log('Express server listening on port ' + app.get('port'));
+  });
 });

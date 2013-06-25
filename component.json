@@ -20,6 +20,8 @@
   "main": "assets/index.js",
   "scripts": [
     "assets/oauth.js",
+    "assets/pages.js",
+    "assets/angular.js",
     "assets/index.js"
   ],
   "styles": [

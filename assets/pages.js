@@ -23,7 +23,7 @@ module.exports = exports = {
   routes: {
     '/': 'PersonView',
     '/person/:id': 'PersonView',
-    '/settings': 'Settings'
+    // '/settings': 'Settings'
   }
 };
 

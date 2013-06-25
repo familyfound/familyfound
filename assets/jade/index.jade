@@ -10,7 +10,10 @@ block container
     #pages.row-fluid(ng-view)
     .templates
       script(id='personView.html', type='text/ng-template')
-        .person.top-person(data-person='rootPerson')
+        h1 Hello People
+        .boxes(data-boxes='rootPerson')
+        .todos
+          .todo(ng-repeat='todo in todos', data-todo='todo')
       script(id="settings.html", type="text/ng-template")
         .settings-manager(data-settings-manager='familyfound').
           You will see your settings in good time.

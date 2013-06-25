@@ -47,6 +47,7 @@ function check_login(req, res) {
         // am I allowed to do this?
         return check_login(req, res);
       }
+      req.session.userId = data.id;
       return res.send({authorized: true, data: data});
     });
   }
@@ -98,6 +99,7 @@ function callback(req, res) {
       req.session.oauth.access_secret = access_secret;
       res.cookie('oauth', access_token);
       return getData(access_token, function (err, data) {
+        req.session.userId = data.id;
         return res.render('oauth-status', {
           title: 'Login successful!',
           response: {
