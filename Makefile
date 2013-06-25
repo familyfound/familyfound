@@ -6,15 +6,15 @@ template_files := $(patsubst assets/jade/%.jade,static/%.html,$(wildcard assets/
 default: build/build.js
 	@:
 
+heroku: local_build
+	@node app.js
+
 build/build.js: static/index.html $(stylus_files) $(javascript_files)
 	@echo "Component build"
 	@component build --dev --use component-stylus
 
-local_build: components node_modules $(stylus_files) $(javascript_files)
+local_build: components node_modules static/index.html $(stylus_files) $(javascript_files)
 	@./node_modules/.bin/component build --dev --use component-stylus
-
-heroku: local_build templates
-	@node app.js
 
 components: component.json
 	@./node_modules/.bin/component install
@@ -35,4 +35,4 @@ test:
 reboot:
 	@rm -rf node_modules components
 
-.PHONY: test reboot serve
+.PHONY: test reboot serve heroku local_build
