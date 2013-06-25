@@ -11,7 +11,7 @@ block container
     .templates
       script(id='personView.html', type='text/ng-template')
         h1 Hello People
-        .boxes(data-boxes='rootPerson')
+        .rootPerson(data-boxes='rootPerson')
         .todos
           .todo(ng-repeat='todo in todos', data-todo='todo')
       script(id="settings.html", type="text/ng-template")

@@ -12,6 +12,28 @@ function checkLogin(req, res, next) {
   }
   return next();
 }
+  
+function parsePerson(data) {
+  var person = {
+    display: data.persons[0].display,
+    id: data.persons[0].id,
+    mother: null,
+    father: null,
+    motherId: null,
+    fatherId: null
+  };
+  data.childAndParentsRelationships.every(function (rel) {
+    if (person.motherId && person.fatherId) return false;
+    if (rel.child.resourceId !== person.id) return true;
+    if (rel.father && rel.father.resourceId) {
+      person.fatherId = rel.father.resourceId;
+    }
+    if (rel.mother && rel.mother.resourceId) {
+      person.motherId = rel.mother.resourceId;
+    }
+  });
+  return person;
+};
 
 function getPerson(req, res) {
   if (!req.params.id) return {error: 'no person id'};
@@ -23,7 +45,7 @@ function getPerson(req, res) {
       return res.send(401, {error: 'Not logged in'});
     }
     debug('got', data);
-    return res.send(data);
+    return res.send(parsePerson(data));
   });
 }
 

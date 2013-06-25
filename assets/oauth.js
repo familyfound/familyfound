@@ -22,7 +22,7 @@ module.exports = {
       if (res.body.authorized) return next(null, res.body.data);
       var dialog;
       window.authCallback = function (res) {
-        dialog.close();
+        dialog.hide();
         if (res.err) return next(res.err);
         if (!res.authorized) return next('Unauthorized');
         return next(null, res.data);

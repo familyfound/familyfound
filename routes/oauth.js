@@ -74,7 +74,13 @@ function callback(req, res) {
   if (!req.session.oauth) {
     debug('step 2 - uninitialized');
     req.session.destroy();
-    return res.redirect('/');
+    return res.render('oauth-status', {
+      title: 'Failed to login',
+      response: {
+        authorized: false,
+        error: 'No session found...'
+      }
+    });
   }
   debug('step 2');
   var oauth = req.session.oauth;
