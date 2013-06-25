@@ -14,7 +14,8 @@
     "notablemind/angular-settings": "*",
     "notablemind/loco": "*",
     "familyfound/boxes": "*",
-    "component/dialog": "*"
+    "component/dialog": "*",
+    "familyfound/promise": "*"
   },
   "development": {},
   "license": "MIT",

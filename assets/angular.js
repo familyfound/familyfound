@@ -2,6 +2,7 @@
 var routes = {}
   , request = require('superagent')
   , boxes = require('boxes')
+  , promise = require('promise')
   , oauth = require('./oauth');
 
 var app = module.exports = angular.module('familyfound', ['ngResource', 'settings', 'boxes'])
@@ -25,22 +26,6 @@ app.addRoute = function (path, tpl, ctrl) {
 };
 
 require('angular-resource');
-
-function promise(getter, next) {
-  var item = null, waiting = [];
-  getter(function (err, res) {
-    if (err) return next(err);
-    item = res;
-    waiting.forEach(function (fn) {
-      fn(item);
-    });
-    next(null, item);
-  });
-  return function (fn) {
-    if (item !== null) return fn(item);
-    waiting.push(fn);
-  };
-}
 
 app.factory('user', function() {
   return promise(oauth.check, function (err, data) {

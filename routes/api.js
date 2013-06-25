@@ -12,8 +12,8 @@ function checkLogin(req, res, next) {
   }
   return next();
 }
-  
-function parsePerson(data) {
+
+function parseRelations(data) {
   var person = {
     display: data.persons[0].display,
     id: data.persons[0].id,
@@ -35,7 +35,7 @@ function parsePerson(data) {
   return person;
 };
 
-function getPerson(req, res) {
+function getPersonRelations(req, res) {
   if (!req.params.id) return {error: 'no person id'};
   fs.get('person-with-relationships-query',
          {person: req.params.id},
@@ -44,18 +44,69 @@ function getPerson(req, res) {
     if (err) {
       return res.send(401, {error: 'Not logged in'});
     }
-    debug('got', data);
-    return res.send(parsePerson(data));
+    var person = parseRelations(data);
+    getPersonData(req.params.id, req.session.userId, function (err, data) {
+      if (err) return res.send({error: 'Failed to get person data'});
+      person.status = data.status;
+      person.todos = data.todos;
+      person.id = data.id;
+      return res.send(person);
+    });
   });
 }
 
-function checkToken(req, res, next) {
-  if (!req.session.oauth || !req.session.oauth.access_token) {
-    return res.send(401, {error: 'Not logged in'});
-  }
-  next();
+function getPersonData(person, user, next) {
+  var db = getDb();
+  db.collection('status').findOne({
+    person: person,
+    user: user
+  }, function (err, status) {
+    if (err) next(err);
+    db.collection('todos').find({
+      person: person
+    }).toArray(function (err, todos) {
+      if (err) return next(err);
+      todos.forEach(function (todo) {
+        todo.owned = todo.user === user;
+        todo.watching = todo.watchers.indexOf(user) !== -1;
+        todo.done = !!todo.completed;
+        delete todo.watchers;
+      });
+      return next(null, {
+        status: status ? status.status : 'working',
+        todos: todos,
+        id: person
+      });
+    });
+  });
+}
+
+function getPerson(req, res) {
+  getPersonData(req.params.id, req.session.userId, function (err, data) {
+    if (err) return res.send({error: 'Failed to get person', details: err});
+    res.send(data);
+  });
+}
+
+function setStatus(req, res) {
+  var db = getDb();
+  db.collection('status').update({
+    person: req.body.id,
+    user: req.session.userId
+  }, {
+    person: req.body.id,
+    user: req.session.userId,
+    status: req.body.status,
+    modified: new Date()
+  }, {upsert: true}, function (err, doc) {
+    if (err) return res.send({error: 'failed to save'});
+    res.send({success: true});
+  });
 }
 
 exports.addRoutes = function (app) {
-  app.get('/api/person/:id', checkToken, getPerson);
+  app.get('/api/person/relations/:id', checkLogin, getPersonRelations);
+  app.get('/api/person/:id', checkLogin, getPerson);
+  app.post('/api/person/status', checkLogin, setStatus);
 };
+exports.checkLogin = checkLogin;

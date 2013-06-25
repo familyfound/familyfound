@@ -11,6 +11,7 @@ var express = require('express')
   , db = require('./lib/db')
   , config = require('./config.yaml')
   , oauth = require('./routes/oauth')
+  , todos = require('./routes/todos')
   , api = require('./routes/api');
 
 // all environments
@@ -35,6 +36,7 @@ if ('development' == app.get('env')) {
 
 api.addRoutes(app);
 oauth.addRoutes(app);
+todos.addRoutes(app);
 
 var index = function(req, res) {
   res.send(fs.readFileSync(path.join(__dirname, 'static', 'index.html')).toString('utf8'));

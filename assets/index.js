@@ -29,7 +29,7 @@ var loadPeople = function (base, scope, gens) {
     return null;
   }
   if (base.fatherId) {
-    request.get('/api/person/' + base.fatherId)
+    request.get('/api/person/relations/' + base.fatherId)
       .end(function (err, req) {
         console.log('got person', req.body);
         base.father = req.body;
@@ -38,7 +38,7 @@ var loadPeople = function (base, scope, gens) {
       });
   }
   if (base.motherId) {
-    request.get('/api/person/' + base.motherId)
+    request.get('/api/person/relations/' + base.motherId)
       .end(function (err, req) {
         console.log('got person', req.body);
         base.mother = req.body;
@@ -53,7 +53,7 @@ var mainControllers = {
   PersonView: function ($scope, user) {
     $scope.rootPerson = null;
     user(function(user) {
-      request.get('/api/person/' + user.personId)
+      request.get('/api/person/relations/' + user.personId)
         .end(function (err, req) {
           if (err) { return console.error('Failed to get person'); }
           var person = req.body;
