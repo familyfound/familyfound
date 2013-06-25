@@ -2,10 +2,16 @@
 var config = require('../config.yaml')
   , request = require('superagent')
 
+  , getDb = require('../lib/db')
   , debug = require('debug')('familyfound:api')
   , fs = require('familysearch').single();
 
-var token = 'USYS0BE68484DB1264D7DD3146E6EDCC1358_naci-045-033.d.usys.fsglobal.net'
+function checkLogin(req, res, next) {
+  if (!req.session.oauth || !req.session.oauth.access_token) {
+    return res.send(401, {error: 'Not logged in'});
+  }
+  return next();
+}
 
 function getPerson(req, res) {
   if (!req.params.id) return {error: 'no person id'};

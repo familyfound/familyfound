@@ -7,7 +7,7 @@ var request = require('superagent')
 function showDialog(url) {
   var node = document.createElement('iframe');
   node.src = url + '&template=mobile';
-  dialog(node)
+  return dialog(node)
     .addClass('login-modal')
     .modal()
     .show();
@@ -20,12 +20,14 @@ module.exports = {
       if (err) return next(err);
       if (res.body.error) return next(res.body.error);
       if (res.body.authorized) return next(null, res.body.data);
+      var dialog;
       window.authCallback = function (res) {
+        dialog.close();
         if (res.err) return next(res.err);
         if (!res.authorized) return next('Unauthorized');
         return next(null, res.data);
       };
-      showDialog(res.body.url);
+      dialog = showDialog(res.body.url);
     });
   }
 };
