@@ -16,6 +16,29 @@ var Unauthorized = function () {
 };
 util.inherits(Unauthorized, Error);
 
+function checkLogin(req, res, next) {
+  if (req.session.oauth && req.session.oauth.access_token) {
+    return next();
+  }
+  if (!req.headers.authorization) {
+    return res.send(401, {error: 'Not logged in'});
+  }
+  // coming from extension, check the session token
+  req.session.oauth = {
+    access_token: req.headers.authorization.split(' ')[1]
+  };
+  return getData(req.session.oauth.access_token, function (err, data) {
+    if (err) {
+      debug('Error check-login get data. Probably old session', err);
+      req.session.destroy();
+      // am I allowed to do this?
+      return res.send(401, {error: 'Not logged in'});
+    }
+    req.session.userId = data.id;
+    return next();
+  });
+}
+
 function createOAuth(apiBase, key, secret, callbackUrl) {
   return new OAuth(
     apiBase + "request_token",
@@ -132,4 +155,5 @@ exports.addRoutes = function (app) {
   app.get(callback_path, hostChecker, callback);
 };
 exports.hostChecker = hostChecker;
+exports.checkLogin = checkLogin;
 

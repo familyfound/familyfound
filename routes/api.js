@@ -2,16 +2,10 @@
 var config = require('../config.yaml')
   , request = require('superagent')
 
+  , oauth = require('./oauth')
   , getDb = require('../lib/db')
   , debug = require('debug')('familyfound:api')
   , fs = require('familysearch').single();
-
-function checkLogin(req, res, next) {
-  if (!req.session.oauth || !req.session.oauth.access_token) {
-    return res.send(401, {error: 'Not logged in'});
-  }
-  return next();
-}
 
 function parseRelations(data) {
   var person = {
@@ -105,8 +99,8 @@ function setStatus(req, res) {
 }
 
 exports.addRoutes = function (app) {
-  app.get('/api/person/relations/:id', checkLogin, getPersonRelations);
-  app.get('/api/person/:id', checkLogin, getPerson);
-  app.post('/api/person/status', checkLogin, setStatus);
+  app.get('/api/person/relations/:id', oauth.checkLogin, getPersonRelations);
+  app.get('/api/person/:id', oauth.checkLogin, getPerson);
+  app.post('/api/person/status', oauth.checkLogin, setStatus);
 };
-exports.checkLogin = checkLogin;
+exports.checkLogin = oauth.checkLogin;
