@@ -25,13 +25,16 @@
       <div id="pages" ng-view class="row-fluid"></div>
       <div class="templates">
         <script id="personView.html" type="text/ng-template">
-          <h1>Hello People</h1>
-          <div data-boxes="rootPerson" class="rootPerson"></div>
-          <div class="rightPane">
-            <div class="alerts">
-              <h4>Alerts</h4>
-              <div ng-repeat="alert in alerts" data-alert="alert" class="alert"></div>
+          <h1>{{ rootPerson.display.name || "Loading" }} Tree</h1><a href="https://familysearch.org/tree/#view=ancestor&amp;person={{rootPerson.id}}" target="_blank" class="pull-right">View on FamilySearch.org</a>
+          <div class="tree">
+            <div ng-click="goBack()" ng-show="rootPerson.mainChild" class="go-back">
+              <div class="mid">&laquo;</div>
             </div>
+            <div data-boxes="rootPerson" data-click-box="clickBox" class="rootPerson"></div>
+          </div>
+          <div class="rightPane"><!-- .alerts
+            <h4>Alerts</h4>
+            <div ng-repeat="alert in alerts" data-alert="alert" class="alert"></div>-->
             <div class="todos">
               <h4>Your Todos</h4>
               <div ng-repeat="todo in todos.owned" data-todo="todo" data-dashboard="true" class="todo"><span>more replaces</span></div>

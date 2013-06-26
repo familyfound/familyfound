@@ -10,10 +10,14 @@ block container
     #pages.row-fluid(ng-view)
     .templates
       script(id='personView.html', type='text/ng-template')
-        h1 Hello People
-        .rootPerson(data-boxes='rootPerson')
+        h1 {{ rootPerson.display.name || "Loading" }} Tree
+        a.pull-right(href='https://familysearch.org/tree/#view=ancestor&person={{rootPerson.id}}', target='_blank') View on FamilySearch.org
+        .tree
+          .go-back(ng-click='goBack()', ng-show='rootPerson.mainChild')
+            .mid &laquo;
+          .rootPerson(data-boxes='rootPerson', data-click-box='clickBox')
         .rightPane
-          .alerts
+          // .alerts
             h4 Alerts
             .alert(ng-repeat='alert in alerts', data-alert='alert')
           .todos

@@ -61,6 +61,9 @@ function getData(token, next) {
 
 // Create the rule to start the login process on Twitter
 function check_login(req, res) {
+  if (!req.session) {
+    return res.send({error: 'no session found'});
+  }
   if (req.session.oauth && req.session.oauth.access_token) {
     res.cookie('already oauthed', req.session.oauth.access_token);
     return getData(req.session.oauth.access_token, function (err, data) {

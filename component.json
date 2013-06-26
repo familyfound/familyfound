@@ -15,16 +15,14 @@
     "notablemind/loco": "*",
     "familyfound/boxes": "*",
     "component/dialog": "*",
-    "familyfound/promise": "*"
+    "familyfound/promise": "*",
+    "familyfound/todo": "*"
   },
   "development": {},
   "license": "MIT",
   "main": "assets/index.js",
   "scripts": [
     "assets/oauth.js",
-    "assets/alert-tpl.js",
-    "assets/todo-tpl.js",
-    "assets/controls.js",
     "assets/pages.js",
     "assets/settings.js",
     "assets/angular.js",

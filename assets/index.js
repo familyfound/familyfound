@@ -9,7 +9,6 @@ var request = require('superagent')
   , defaultSettings = require('./settings')
   , app = require('./angular')
   , pages = require('./pages')
-  , controls = require('./controls')
   , oauth = require('./oauth');
 
 settings.add(defaultSettings);
@@ -26,49 +25,83 @@ function toCamelCase(title) {
   return title[0].toLowerCase() + title.slice(1);
 }
 
-var loadPeople = function (base, scope, gens) {
+var loadPeople = function (get, base, scope, gens) {
   if (gens <= 0) {
-    base.fatherId = null;
-    base.motherId = null;
+    base.hideParents = true;
     return null;
   }
+  base.hideParents = false;
   if (base.fatherId) {
-    request.get('/api/person/relations/' + base.fatherId)
-      .end(function (err, req) {
-        console.log('got person', req.body);
-        base.father = req.body;
-        scope.$digest();
-        loadPeople(base.father, scope, gens - 1);
+    get(base.fatherId, function (data, cached) {
+        console.log('got person', data);
+        base.father = data;
+        data.mainChild = base;
+        loadPeople(get, base.father, scope, gens - 1);
+        if (!cached) scope.$digest();
       });
   }
   if (base.motherId) {
-    request.get('/api/person/relations/' + base.motherId)
-      .end(function (err, req) {
-        console.log('got person', req.body);
-        base.mother = req.body;
-        scope.$digest();
-        loadPeople(base.mother, scope, gens - 1);
+    get(base.motherId, function (data, cached) {
+        console.log('got person', data);
+        base.mother = data;
+        data.mainChild = base;
+        loadPeople(get, base.mother, scope, gens - 1);
+        if (!cached) scope.$digest();
       });
   }
 };
 
 var mainControllers = {
 
-  PersonView: function ($scope, user) {
+  PersonView: function ($scope, $route, $location, user, ffapi) {
     $scope.rootPerson = null;
+    $scope.clickBox = function (person, node) {
+      console.log('clicked', person, node);
+      person.hideParents = true;
+      $location.path('/person/' + person.id);
+      $scope.$apply();
+    };
+    $scope.goBack = function () {
+      if (!$scope.rootPerson.mainChild) return;
+      if ($scope.rootPerson.mainChild.id === user.personId) {
+        $location.path('/');
+      } else {
+        $location.path('/person/' + $scope.rootPerson.mainChild.id);
+      }
+      $scope.rootPerson.hideParents = true;
+      $scope.apply();
+    };
+    $scope.removeTodo = function (todo) {
+      var i = $scope.todos.owned.indexOf(todo);
+      if (i === -1) {
+        console.warn('trying to remove unknown todo', todo);
+        return;
+      }
+      $scope.todos.owned.splice(i, 1);
+      ffapi('todos/remove', {id: todo._id});
+      $scope.$digest();
+    };
     user(function(user) {
-      request.get('/api/person/relations/' + user.personId)
-        .end(function (err, req) {
-          if (err) { return console.error('Failed to get person'); }
-          var person = req.body;
-          $scope.rootPerson = person;
-          $scope.$digest();
-          loadPeople(person, $scope, settings.get('main.displayGens'));
-        });
+      var personId = $route.current.params.id || user.personId;
+      ffapi.relation(personId, function (person, cached) {
+        $scope.rootPerson = person;
+        loadPeople(ffapi.relation, person, $scope, settings.get('main.displayGens'));
+        if (!cached) $scope.$digest();
+      });
       request.get('/api/todos/list')
         .end(function (err, req) {
           if (err) return console.error('Failed to get todos');
           $scope.todos = req.body;
+          $scope.todos.owned.forEach(function (todo) {
+            todo.owned = true;
+            todo.watching = false;
+            todo.done = !!todo.completed;
+          });
+          $scope.todos.watching.forEach(function (todo) {
+            todo.owned = false;
+            todo.watching = true;
+            todo.done = !!todo.completed;
+          });
           $scope.$digest();
         });
       request.get('/api/alerts/list')

@@ -54,7 +54,7 @@ var items = {
       if (err) return res.send({error: 'error finding todo'});
       if (!doc) return res.send({error: 'todo not found'});
       // send out alerts
-      if (!doc.watchers.length) return res.send({success: true});
+      if (!doc.watchers || !doc.watchers.length) return res.send({success: true});
       fireCompleted(db, doc, function (err) {
         if (err) {
           error('failed to create alerts', err);
@@ -87,6 +87,13 @@ var items = {
       res.send({id: items[0]._id.toString()});
     });
   }
+}
+
+function personalize(uid, todos) {
+  todos.forEach(function (todo) {
+    uid.done = !!uid.completed;
+    uid.watching = todo.watchers.indexOf(uid) !== -1;
+  });
 }
 
 var gets = {

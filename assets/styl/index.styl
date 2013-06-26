@@ -8,12 +8,39 @@ body {
   margin: 0;
 }
 
-.rootPerson {
+.tree {
   float: left;
+  display: -webkit-box;
+  display:    -moz-box;
+  display:    flex-box;
+
+  .go-back {
+    display: -webkit-box;
+    display:    -moz-box;
+    display:    flex-box;
+    -webkit-box-align: center;
+       -moz-box-align: center;
+            box-align: center;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #eee;
+    }
+
+    .mid {
+      font-size: 90px;
+      font-weight: bold;
+      margin-top: -15px;
+    }
+  }
+
+  .rootPerson {
+  }
 }
 
 .rightPane {
   float: left;
+  margin-left: 30px;
 }
 
 .todo:hover {
