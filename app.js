@@ -12,6 +12,7 @@ var express = require('express')
   , config = require('./config.yaml')
   , oauth = require('./routes/oauth')
   , todos = require('./routes/todos')
+  , alerts = require('./routes/alerts')
   , api = require('./routes/api');
 
 // all environments
@@ -36,6 +37,7 @@ if ('development' == app.get('env')) {
 
 api.addRoutes(app);
 oauth.addRoutes(app);
+alerts.addRoutes(app);
 todos.addRoutes(app);
 
 var index = function(req, res) {

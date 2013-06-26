@@ -22,7 +22,11 @@
   "main": "assets/index.js",
   "scripts": [
     "assets/oauth.js",
+    "assets/alert-tpl.js",
+    "assets/todo-tpl.js",
+    "assets/controls.js",
     "assets/pages.js",
+    "assets/settings.js",
     "assets/angular.js",
     "assets/index.js"
   ],

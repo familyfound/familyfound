@@ -9,9 +9,21 @@ default: build/build.js
 heroku: local_build
 	@DEBUG=familyfound:*,familysearch:* node app.js
 
-build/build.js: static/index.html $(stylus_files) $(javascript_files)
+build/build.js: static/index.html $(stylus_files) $(javascript_files) assets/alert-tpl.js assets/todo-tpl.js
 	@echo "Component build"
 	@component build --dev --use component-stylus
+
+assets/todo-tpl.js: assets/todo-tpl.html
+	@component convert $<
+
+assets/alert-tpl.js: assets/alert-tpl.html
+	@component convert $<
+
+assets/alert-tpl.html: assets/alert.jade
+	@jade -P < $< > assets/alert-tpl.html
+
+assets/todo-tpl.html: assets/todo.jade
+	@jade -P < $< > assets/todo-tpl.html
 
 local_build: node_modules components static/index.html $(stylus_files) $(javascript_files)
 	@./node_modules/.bin/component build --dev --use component-stylus

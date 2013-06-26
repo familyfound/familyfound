@@ -27,8 +27,17 @@
         <script id="personView.html" type="text/ng-template">
           <h1>Hello People</h1>
           <div data-boxes="rootPerson" class="rootPerson"></div>
-          <div class="todos">
-            <div ng-repeat="todo in todos" data-todo="todo" class="todo"></div>
+          <div class="rightPane">
+            <div class="alerts">
+              <h4>Alerts</h4>
+              <div ng-repeat="alert in alerts" data-alert="alert" class="alert"></div>
+            </div>
+            <div class="todos">
+              <h4>Your Todos</h4>
+              <div ng-repeat="todo in todos.owned" data-todo="todo" data-dashboard="true" class="todo"><span>more replaces</span></div>
+              <h4>Watched Todos</h4>
+              <div ng-repeat="todo in todos.watching" data-todo="todo" data-dashboard="true" class="todo"><span>should be replaced</span></div>
+            </div>
           </div>
         </script>
         <script id="settings.html" type="text/ng-template">

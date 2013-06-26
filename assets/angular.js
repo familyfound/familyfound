@@ -3,9 +3,10 @@ var routes = {}
   , request = require('superagent')
   , boxes = require('boxes')
   , promise = require('promise')
+  , todo = require('todo')
   , oauth = require('./oauth');
 
-var app = module.exports = angular.module('familyfound', ['ngResource', 'settings', 'boxes'])
+var app = module.exports = angular.module('familyfound', ['ngResource', 'settings', 'boxes', 'todo'])
   .config(['$routeProvider', '$locationProvider', function(route, location) {
     Object.keys(routes).forEach(function (path) {
       route.when(path, routes[path]);

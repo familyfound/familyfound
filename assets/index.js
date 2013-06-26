@@ -1,14 +1,18 @@
 
 var request = require('superagent')
   , angular = require('angularjs')
-  , settings = require('settings')
+  , settings = require('settings').sub('familyfound')
   , angularSettings = require('angular-settings')
   , dialog = require('dialog')
   // , debug = require('debug')('familyfound:main')
 
+  , defaultSettings = require('./settings')
   , app = require('./angular')
   , pages = require('./pages')
+  , controls = require('./controls')
   , oauth = require('./oauth');
+
+settings.add(defaultSettings);
 
 function showError(err) {
   console.error(err);
@@ -59,7 +63,19 @@ var mainControllers = {
           var person = req.body;
           $scope.rootPerson = person;
           $scope.$digest();
-          loadPeople(person, $scope, 2);
+          loadPeople(person, $scope, settings.get('main.displayGens'));
+        });
+      request.get('/api/todos/list')
+        .end(function (err, req) {
+          if (err) return console.error('Failed to get todos');
+          $scope.todos = req.body;
+          $scope.$digest();
+        });
+      request.get('/api/alerts/list')
+        .end(function (err, req) {
+          if (err) return console.error('Failed to get alerts');
+          $scope.alerts = req.body;
+          $scope.$digest();
         });
     });
   }

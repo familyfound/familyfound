@@ -12,8 +12,17 @@ block container
       script(id='personView.html', type='text/ng-template')
         h1 Hello People
         .rootPerson(data-boxes='rootPerson')
-        .todos
-          .todo(ng-repeat='todo in todos', data-todo='todo')
+        .rightPane
+          .alerts
+            h4 Alerts
+            .alert(ng-repeat='alert in alerts', data-alert='alert')
+          .todos
+            h4 Your Todos
+            .todo(ng-repeat='todo in todos.owned', data-todo='todo', data-dashboard='true')
+              span more replaces
+            h4 Watched Todos
+            .todo(ng-repeat='todo in todos.watching', data-todo='todo', data-dashboard='true')
+              span should be replaced
       script(id="settings.html", type="text/ng-template")
         .settings-manager(data-settings-manager='familyfound').
           You will see your settings in good time.
