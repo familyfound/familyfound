@@ -13,6 +13,8 @@ var request = require('superagent')
 
 settings.add(defaultSettings);
 
+settings.set('ffapi:main.ffhome', '/'); // don't need external url
+
 function showError(err) {
   console.error(err);
   dialog('Page Error', 'Sorry, an error occurred on the page. Please refresh.')
