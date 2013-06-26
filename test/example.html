@@ -1,0 +1,43 @@
+<html>
+  <head>
+    <title>Component Test</title>
+    <link rel="stylesheet" href="../build/build.css">
+    <style>
+      body { font-family: sans-serif; }
+      table {
+        border-collapse: collapse;
+      }
+      table, th, td {
+        border: 1px solid #ccc;
+      }
+      th, td {
+        padding: 5px 10px;
+      }
+      .docs {
+        margin-bottom: 30px;
+      }
+      .example {
+        float: left;
+        margin-right: 30px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+    <script src="../build/build.js"></script>
+    <script src="setup-e2e.js"></script>
+    <div class="docs">
+      <h1>FamilyFound Alert and Todo Example</h1>
+    </div>
+    <hr/>
+    <div id="ang" ng-app="test">
+      <div ng-controller="Tester">
+        <h3>Todo</h3>
+        <div class="todo" data-todo="todo"></div>
+        <h3>Alert</h3>
+        <div class="alert" data-alert="alert"></div>
+      </div>
+    </div>
+    </div>
+  </body>
+</html>
