@@ -13,7 +13,7 @@ var request = require('superagent')
 
 settings.add(defaultSettings);
 
-settings.set('ffapi:main.ffhome', '/'); // don't need external url
+require('settings').set('ffapi:main.ffhome', '/'); // don't need external url
 
 function showError(err) {
   console.error(err);
