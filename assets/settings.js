@@ -1,11 +1,9 @@
 
 module.exports = {
-  name: 'main',
-  title: 'FamilyFound',
-  settings: [
-    {
-      name: 'displayGens',
-      value: 3,
+  main: {
+    _group: true,
+    displayGens: {
+      value: 7,
       range: {
         min: 3,
         max: 7
@@ -13,5 +11,5 @@ module.exports = {
       type: 'range',
       description: 'the number of generations to display'
     }
-  ]
+  }
 };

@@ -1,19 +1,22 @@
 
+// main client-side script
+
 var request = require('superagent')
   , angular = require('angularjs')
-  , settings = require('settings').sub('familyfound')
+  , settings = require('settings')('familyfound')
   , angularSettings = require('angular-settings')
   , dialog = require('dialog')
-  // , debug = require('debug')('familyfound:main')
 
   , defaultSettings = require('./settings')
   , app = require('./angular')
   , pages = require('./pages')
   , oauth = require('./oauth');
 
-settings.add(defaultSettings);
+settings.config(defaultSettings);
 
-require('settings').set('ffapi:main.ffhome', '/'); // don't need external url
+require('settings')().set('ffapi.cache', 'session');
+
+// require('settings')().set('ffapi.main.ffhome', '/'); // don't need external url
 
 function showError(err) {
   console.error(err);
@@ -53,26 +56,21 @@ var loadPeople = function (get, base, scope, gens) {
   }
 };
 
+app.controller('NavController', function ($scope, $location) {
+  $scope.activeItem = function (item) {
+    var path = $location.path();
+    if (item.path === path) return true;
+    if (item.match && path.indexOf(item.path) === 0) {
+      return true;
+    }
+    return false;
+  };
+  $scope.subNav = pages.subNav;
+});
+
 var mainControllers = {
 
-  PersonView: function ($scope, $route, $location, user, ffapi) {
-    $scope.rootPerson = null;
-    $scope.clickBox = function (person, node) {
-      console.log('clicked', person, node);
-      person.hideParents = true;
-      $location.path('/person/' + person.id);
-      $scope.$apply();
-    };
-    $scope.goBack = function () {
-      if (!$scope.rootPerson.mainChild) return;
-      if ($scope.rootPerson.mainChild.id === user.personId) {
-        $location.path('/');
-      } else {
-        $location.path('/person/' + $scope.rootPerson.mainChild.id);
-      }
-      $scope.rootPerson.hideParents = true;
-      $scope.apply();
-    };
+  TodoView: function ($scope, $route, $location, user, ffapi) {
     $scope.removeTodo = function (todo) {
       var i = $scope.todos.owned.indexOf(todo);
       if (i === -1) {
@@ -83,13 +81,9 @@ var mainControllers = {
       ffapi('todos/remove', {id: todo._id});
       $scope.$digest();
     };
+
     user(function(user) {
       var personId = $route.current.params.id || user.personId;
-      ffapi.relation(personId, function (person, cached) {
-        $scope.rootPerson = person;
-        loadPeople(ffapi.relation, person, $scope, settings.get('main.displayGens'));
-        if (!cached) $scope.$digest();
-      });
       request.get('/api/todos/list')
         .end(function (err, req) {
           if (err) return console.error('Failed to get todos');
@@ -112,6 +106,51 @@ var mainControllers = {
           $scope.alerts = req.body;
           $scope.$digest();
         });
+    });
+  },
+
+  PersonView: function ($scope, $route, $location, user, ffapi) {
+    $scope.rootPerson = null;
+    $scope.fanConfig = {
+      gens: settings.get('main.displayGens'),
+      links: false,
+      width: 800,
+      height: 600,
+      center: {x: 400, y: 400},
+      ringWidth: 30,
+      doubleWidth: true,
+      tips: true,
+      removeRoot: true,
+      onNode: function (el, person) {
+        el.on('click', function () {
+          $location.path('/person/' + person.id);
+          $scope.$digest();
+        });
+      }
+    };
+    $scope.clickBox = function (person, node) {
+      console.log('clicked', person, node);
+      person.hideParents = true;
+      $location.path('/person/' + person.id);
+      $scope.$apply();
+    };
+    $scope.goBack = function () {
+      if (!$scope.rootPerson.mainChild) return;
+      if ($scope.rootPerson.mainChild.id === user.personId) {
+        $location.path('/');
+      } else {
+        $location.path('/person/' + $scope.rootPerson.mainChild.id);
+      }
+      $scope.rootPerson.hideParents = true;
+      $scope.apply();
+    };
+    user(function(user) {
+      var personId = $route.current.params.id || user.personId;
+      ffapi.relation(personId, function (person, cached) {
+        $scope.rootPerson = person;
+        loadPeople(ffapi.relation, person, $scope, settings.get('main.displayGens'));
+        if (!cached) $scope.$digest();
+      });
     });
   }
 

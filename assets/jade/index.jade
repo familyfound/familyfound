@@ -7,26 +7,28 @@ block bodytitle
   span They are waiting.
 
 block container
+    nav.nav.nav-pills.sub-nav(data-ng-controller='NavController')
+      li(ng-repeat='item in subNav', ng-class='{active: activeItem(item)}')
+        a(href='{{item.path}}') {{ item.title }}
     #pages.row-fluid(ng-view)
     .templates
+      script(id='todoView.html', type='text/ng-template')
+        h4 Your Todos
+        .todo(ng-repeat='todo in todos.owned', data-todo='todo', data-dashboard='true')
+          span more replaces
+        h4 Watched Todos
+        .todo(ng-repeat='todo in todos.watching', data-todo='todo', data-dashboard='true')
+          span should be replaced
+        // .alerts
+          h4 Alerts
+          .alert(ng-repeat='alert in alerts', data-alert='alert')
       script(id='personView.html', type='text/ng-template')
         h1 {{ rootPerson.display.name || "Loading" }} Tree
         a.pull-right(href='https://familysearch.org/tree/#view=ancestor&person={{rootPerson.id}}', target='_blank') View on FamilySearch.org
-        .tree
-          .go-back(ng-click='goBack()', ng-show='rootPerson.mainChild')
+        .tree(data-fan="rootPerson", data-config='fanConfig')
+          // .go-back(ng-click='goBack()', ng-show='rootPerson.mainChild')
             .mid &laquo;
-          .rootPerson(data-boxes='rootPerson', data-click-box='clickBox')
-        .rightPane
-          // .alerts
-            h4 Alerts
-            .alert(ng-repeat='alert in alerts', data-alert='alert')
-          .todos
-            h4 Your Todos
-            .todo(ng-repeat='todo in todos.owned', data-todo='todo', data-dashboard='true')
-              span more replaces
-            h4 Watched Todos
-            .todo(ng-repeat='todo in todos.watching', data-todo='todo', data-dashboard='true')
-              span should be replaced
+            .rootPerson(data-boxes='rootPerson', data-click-box='clickBox')
       script(id="settings.html", type="text/ng-template")
         .settings-manager(data-settings-manager='familyfound').
           You will see your settings in good time.

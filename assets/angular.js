@@ -1,12 +1,12 @@
 
 var routes = {}
   , request = require('superagent')
-  , boxes = require('boxes')
+  , fan = require('fan')
   , promise = require('promise')
   , todo = require('todo')
   , oauth = require('./oauth');
 
-var app = module.exports = angular.module('familyfound', ['ngResource', 'settings', 'boxes', 'todo'])
+var app = module.exports = angular.module('familyfound', ['ngResource', 'settings', 'fan', 'todo'])
   .config(['$routeProvider', '$locationProvider', function(route, location) {
     Object.keys(routes).forEach(function (path) {
       route.when(path, routes[path]);
@@ -14,9 +14,8 @@ var app = module.exports = angular.module('familyfound', ['ngResource', 'setting
     route.otherwise({redirectTo: '/'});
     location.html5Mode(true);
   }]).run(function($location) {
-    if (window.client_route)
-      $location.path('/' + window.client_route);
-    console.log('run1');
+    if (location.pathname !== '/')
+      $location.path(location.pathname);
   });
 
 app.addRoute = function (path, tpl, ctrl) {

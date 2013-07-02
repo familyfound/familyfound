@@ -14,7 +14,6 @@
               <li><a href="/"><span>Home</span></a></li>
               <li><a href="#about"><span>About</span></a></li>
               <li><a href="https://github.com/familyfound/familyfound/issues" target="_blank"><span>Issues</span></a></li>
-              <li><a href="/settings" class="icon"><i class="icon-cog icon-light"></i></a></li>
               <li><a href="https://github.com/familyfound/familyfound/" target="_blank" class="icon"><i class="icon-github icon-light"></i></a></li>
             </ul>
           </div>
@@ -22,25 +21,24 @@
       </div>
     </div>
     <div class="container">
+      <nav data-ng-controller="NavController" class="nav nav-pills sub-nav">
+        <li ng-repeat="item in subNav" ng-class="{active: activeItem(item)}"><a href="{{item.path}}">{{ item.title }}</a></li>
+      </nav>
       <div id="pages" ng-view class="row-fluid"></div>
       <div class="templates">
+        <script id="todoView.html" type="text/ng-template">
+          <h4>Your Todos</h4>
+          <div ng-repeat="todo in todos.owned" data-todo="todo" data-dashboard="true" class="todo"><span>more replaces</span></div>
+          <h4>Watched Todos</h4>
+          <div ng-repeat="todo in todos.watching" data-todo="todo" data-dashboard="true" class="todo"><span>should be replaced</span></div><!-- .alerts
+          <h4>Alerts</h4>
+          <div ng-repeat="alert in alerts" data-alert="alert" class="alert"></div>-->
+        </script>
         <script id="personView.html" type="text/ng-template">
           <h1>{{ rootPerson.display.name || "Loading" }} Tree</h1><a href="https://familysearch.org/tree/#view=ancestor&amp;person={{rootPerson.id}}" target="_blank" class="pull-right">View on FamilySearch.org</a>
-          <div class="tree">
-            <div ng-click="goBack()" ng-show="rootPerson.mainChild" class="go-back">
-              <div class="mid">&laquo;</div>
-            </div>
-            <div data-boxes="rootPerson" data-click-box="clickBox" class="rootPerson"></div>
-          </div>
-          <div class="rightPane"><!-- .alerts
-            <h4>Alerts</h4>
-            <div ng-repeat="alert in alerts" data-alert="alert" class="alert"></div>-->
-            <div class="todos">
-              <h4>Your Todos</h4>
-              <div ng-repeat="todo in todos.owned" data-todo="todo" data-dashboard="true" class="todo"><span>more replaces</span></div>
-              <h4>Watched Todos</h4>
-              <div ng-repeat="todo in todos.watching" data-todo="todo" data-dashboard="true" class="todo"><span>should be replaced</span></div>
-            </div>
+          <div data-fan="rootPerson" data-config="fanConfig" class="tree"><!-- .go-back(ng-click='goBack()', ng-show='rootPerson.mainChild')
+            <div class="mid">&laquo;</div>
+            <div data-boxes="rootPerson" data-click-box="clickBox" class="rootPerson"></div>-->
           </div>
         </script>
         <script id="settings.html" type="text/ng-template">
