@@ -14,18 +14,36 @@ function parseRelations(data) {
     mother: null,
     father: null,
     motherId: null,
-    fatherId: null
+    fatherId: null,
+    multipleParents: false,
+    families: {},
+    familyIds: {}
   };
-  data.childAndParentsRelationships.every(function (rel) {
-    if (person.motherId && person.fatherId) return false;
-    if (rel.child.resourceId !== person.id) return true;
-    if (rel.father && rel.father.resourceId) {
-      person.fatherId = rel.father.resourceId;
+  var families = {};
+  data.childAndParentsRelationships.forEach(function (rel) {
+    if (rel.child && rel.child.resourceId === person.id) {
+      if (rel.father && rel.father.resourceId) {
+        if (person.fatherId) person.multipleParents = true;
+        person.fatherId = rel.father.resourceId;
+      }
+      if (rel.mother && rel.mother.resourceId) {
+        if (person.motherId) person.multipleParents = true;
+        person.motherId = rel.mother.resourceId;
+      }
+      return;
     }
-    if (rel.mother && rel.mother.resourceId) {
-      person.motherId = rel.mother.resourceId;
+    var spouseId;
+    if (rel.father && rel.father.resourceId !== person.id) {
+      spouseId = rel.father.resourceId;
+    } else if (rel.mother && rel.mother.resourceId !== person.id) {
+      spouseId = rel.mother.resourceId;
+    }
+    if (!families[spouseId]) families[spouseId] = [spouseId];
+    if (rel.child) {
+      families[spouseId].push(rel.child.resourceId);
     }
   });
+  person.familyIds = families;
   return person;
 };
 

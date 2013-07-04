@@ -38,22 +38,28 @@ var loadPeople = function (get, base, scope, gens) {
   base.hideParents = false;
   if (base.fatherId) {
     get(base.fatherId, function (data, cached) {
-        console.log('got person', data);
         base.father = data;
-        data.mainChild = base;
         loadPeople(get, base.father, scope, gens - 1);
         if (!cached) scope.$digest();
       });
   }
   if (base.motherId) {
     get(base.motherId, function (data, cached) {
-        console.log('got person', data);
         base.mother = data;
-        data.mainChild = base;
         loadPeople(get, base.mother, scope, gens - 1);
         if (!cached) scope.$digest();
       });
   }
+  Object.keys(base.familyIds).forEach(function (spouseId) {
+    if (!base.families[spouseId]) base.families[spouseId] = [null];
+    for (var i=0; i<base.familyIds[spouseId].length; i++) {
+      base.families[spouseId].push(null);
+      get(base.familyIds[spouseId][i], function (i, data, cached) {
+        base.families[spouseId][i] = data;
+        if (!cached) scope.$digest();
+      }.bind(null, i));
+    }
+  });
 };
 
 app.controller('NavController', function ($scope, $location) {
