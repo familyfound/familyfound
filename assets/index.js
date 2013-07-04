@@ -126,11 +126,10 @@ var mainControllers = {
       ringWidth: 30,
       doubleWidth: true,
       tips: true,
-      removeRoot: true,
       onNode: function (el, person) {
         el.on('click', function () {
           $location.path('/person/' + person.id);
-          $scope.$digest();
+          $scope.$root.$digest();
         });
       }
     };
