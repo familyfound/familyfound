@@ -30,7 +30,7 @@ function toCamelCase(title) {
   return title[0].toLowerCase() + title.slice(1);
 }
 
-var loadPeople = function (get, base, scope, gens) {
+var loadPeople = function (get, base, scope, gens, root) {
   if (gens <= 0) {
     base.hideParents = true;
     return null;
@@ -50,16 +50,18 @@ var loadPeople = function (get, base, scope, gens) {
         if (!cached) scope.$digest();
       });
   }
-  Object.keys(base.familyIds).forEach(function (spouseId) {
-    if (!base.families[spouseId]) base.families[spouseId] = [null];
-    for (var i=0; i<base.familyIds[spouseId].length; i++) {
-      base.families[spouseId].push(null);
-      get(base.familyIds[spouseId][i], function (i, data, cached) {
-        base.families[spouseId][i] = data;
-        if (!cached) scope.$digest();
-      }.bind(null, i));
-    }
-  });
+  if (root) {
+    Object.keys(base.familyIds).forEach(function (spouseId) {
+      if (!base.families[spouseId]) base.families[spouseId] = [null];
+      for (var i=0; i<base.familyIds[spouseId].length; i++) {
+        base.families[spouseId].push(null);
+        get(base.familyIds[spouseId][i], function (i, data, cached) {
+          base.families[spouseId][i] = data;
+          if (!cached) scope.$digest();
+        }.bind(null, i));
+      }
+    });
+  }
 };
 
 app.controller('NavController', function ($scope, $location) {
@@ -153,7 +155,7 @@ var mainControllers = {
       var personId = $route.current.params.id || user.personId;
       ffapi.relation(personId, function (person, cached) {
         $scope.rootPerson = person;
-        loadPeople(ffapi.relation, person, $scope, settings.get('main.displayGens'));
+        loadPeople(ffapi.relation, person, $scope, settings.get('main.displayGens'), true);
         if (!cached) $scope.$digest();
       });
     });
