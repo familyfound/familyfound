@@ -86,8 +86,11 @@ function getPersonData(person, user, next) {
         todo.done = !!todo.completed;
         delete todo.watchers;
       });
+      if (status && status.status === 'working') {
+        status.status = 'inactive';
+      }
       return next(null, {
-        status: status ? status.status : 'working',
+        status: status ? status.status : 'inactive',
         todos: todos,
         id: person
       });
