@@ -4,9 +4,10 @@ var routes = {}
   , fan = require('fan')
   , promise = require('promise')
   , todo = require('todo')
+  , breadcrumb = require('breadcrumb')
   , oauth = require('./oauth');
 
-var app = module.exports = angular.module('familyfound', ['ngResource', 'settings', 'fan', 'todo'])
+var app = module.exports = angular.module('familyfound', ['ngResource', 'settings', 'fan', 'todo', 'breadcrumb'])
   .config(['$routeProvider', '$locationProvider', function(route, location) {
     Object.keys(routes).forEach(function (path) {
       route.when(path, routes[path]);

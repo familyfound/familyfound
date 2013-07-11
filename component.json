@@ -8,7 +8,7 @@
     "visionmedia/superagent": "*",
     "btknorr/bootstrap": "*",
     "jabapyth/Font-Awesome": "*",
-    "jabapyth/angularjs": "*",
+    "jaredly/angularjs": "*",
     "notablemind/angular-resource": "*",
     "notablemind/settings": "*",
     "notablemind/angular-settings": "*",
@@ -16,7 +16,8 @@
     "familyfound/fan": "*",
     "component/dialog": "*",
     "familyfound/promise": "*",
-    "familyfound/todo": "*"
+    "familyfound/todo": "*",
+    "familyfound/breadcrumb": "*"
   },
   "development": {},
   "license": "MIT",

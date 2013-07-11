@@ -21,6 +21,7 @@
       </div>
     </div>
     <div class="container">
+      <base href="/">
       <nav data-ng-controller="NavController" class="nav nav-pills sub-nav">
         <li ng-repeat="item in subNav" ng-class="{active: activeItem(item)}"><a href="{{item.path}}">{{ item.title }}</a></li>
       </nav>
@@ -35,7 +36,8 @@
           <div ng-repeat="alert in alerts" data-alert="alert" class="alert"></div>-->
         </script>
         <script id="personView.html" type="text/ng-template">
-          <h1>{{ rootPerson.display.name || "Loading" }} Tree</h1><a href="https://familysearch.org/tree/#view=ancestor&amp;person={{rootPerson.id}}" target="_blank" class="pull-right">View on FamilySearch.org</a>
+          <h1>{{ rootPerson.display.name || "Loading" }} Tree</h1><a href="https://familysearch.org/tree/#view=ancestor&amp;person={{rootPerson.id}}" target="_blank">View on FamilySearch.org</a>
+          <div data-breadcrumb="history" data-config="bcConfig" class="pull-right"></div>
           <div data-fan="rootPerson" data-config="fanConfig" class="tree"><!-- .go-back(ng-click='goBack()', ng-show='rootPerson.mainChild')
             <div class="mid">&laquo;</div>
             <div data-boxes="rootPerson" data-click-box="clickBox" class="rootPerson"></div>-->

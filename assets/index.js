@@ -5,6 +5,7 @@ var request = require('superagent')
   , angular = require('angularjs')
   , settings = require('settings')('familyfound')
   , angularSettings = require('angular-settings')
+  , breadcrumb = require('breadcrumb')
   , dialog = require('dialog')
 
   , defaultSettings = require('./settings')
@@ -76,6 +77,32 @@ app.controller('NavController', function ($scope, $location) {
   $scope.subNav = pages.subNav;
 });
 
+function storeKey(pid) {
+  return 'breadcrumb.' + pid;
+}
+
+function getHistory(pid) {
+  console.log('getting for pid', pid);
+  var key = storeKey(pid);
+  if (localStorage[key]) {
+    try {
+      return JSON.parse(localStorage[key]);
+    } catch (e) {}
+  }
+  return [];
+}
+
+function setHistory(pid, history) {
+  console.log('setting for pid', pid, history.length);
+  var key = storeKey(pid);
+  localStorage[key] = JSON.stringify(history);
+}
+
+var helpText = "<b>Inactive:</b> Research has not yet begun.<br>" +
+  "<b>Active:</b> Research is in progress.<br>" +
+  "<b>Clean:</b> Duplicates have been resolved and existing data has been checked for reasonableness.<br>" +
+  "<b>Complete:</b> All data is found, sources have been attached, etc.";
+
 var mainControllers = {
 
   TodoView: function ($scope, $route, $location, user, ffapi) {
@@ -119,6 +146,26 @@ var mainControllers = {
 
   PersonView: function ($scope, $route, $location, user, ffapi) {
     $scope.rootPerson = null;
+
+    // Breadcrumbs
+    $scope.bcConfig = {front:20, back: 20};
+    $scope.history = [];
+
+    function navigate(person, direction) {
+      console.log('navigate', person.id, $scope.rootPerson.id);
+      $scope.history.push({
+        id: $scope.rootPerson.id,
+        // add in date range here?
+        name: $scope.rootPerson.display.name + ' (' + $scope.rootPerson.display.lifespan + ')',
+        direction: direction
+      });
+      setHistory(person.id, $scope.history);
+      // window.location.hash = '#view=ancestor&person=' + person.id;
+      $location.path('/person/' + person.id);
+      $scope.$root.$digest();
+      // $scope.$digest();
+    }
+
     $scope.fanConfig = {
       gens: settings.get('main.displayGens'),
       links: false,
@@ -128,6 +175,21 @@ var mainControllers = {
       ringWidth: 30,
       doubleWidth: true,
       tips: true,
+      onSpouse: function (el, person) {
+        el.on('click', function () {
+          navigate(person, 'side');
+        });
+      },
+      onChild: function (el, person) {
+        el.on('click', function () {
+          navigate(person, 'down');
+        });
+      },
+      onParent: function (el, person) {
+        el.on('click', function () {
+          navigate(person, 'up');
+        });
+      },
       onNode: function (el, person) {
         el.on('click', function () {
           $location.path('/person/' + person.id);
@@ -153,6 +215,8 @@ var mainControllers = {
     };
     user(function(user) {
       var personId = $route.current.params.id || user.personId;
+      console.log('getting for', personId);
+      $scope.history = getHistory(personId);
       ffapi.relation(personId, function (person, cached) {
         $scope.rootPerson = person;
         loadPeople(ffapi.relation, person, $scope, settings.get('main.displayGens'), true);
