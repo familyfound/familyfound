@@ -9,7 +9,7 @@ var express = require('express')
   , fs = require('fs')
 
   , db = require('./lib/db')
-  , config = require('./config.yaml')
+  , config = require('./lib/config')
   , oauth = require('./routes/oauth')
   , todos = require('./routes/todos')
   , alerts = require('./routes/alerts')
