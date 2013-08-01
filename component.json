@@ -7,7 +7,7 @@
   "dependencies": {
     "visionmedia/superagent": "*",
     "btknorr/bootstrap": "*",
-    "jabapyth/Font-Awesome": "*",
+    "jaredly/Font-Awesome": "*",
     "jaredly/angularjs": "*",
     "notablemind/angular-resource": "*",
     "notablemind/settings": "*",
@@ -17,7 +17,8 @@
     "component/dialog": "*",
     "familyfound/promise": "*",
     "familyfound/todo": "*",
-    "familyfound/breadcrumb": "*"
+    "familyfound/breadcrumb": "*",
+    "familyfound/svg-download": "*"
   },
   "development": {},
   "license": "MIT",

@@ -37,11 +37,15 @@
         </script>
         <script id="personView.html" type="text/ng-template">
           <h1>{{ rootPerson.display.name || "Loading" }} Tree</h1><a href="https://familysearch.org/tree/#view=ancestor&amp;person={{rootPerson.id}}" target="_blank">View on FamilySearch.org</a>
-          <div data-breadcrumb="history" data-config="bcConfig" class="pull-right"></div>
+          <div class="pull-right">
+            <button ng-class="{disabled: loadingPeople &gt; 0}" ng-click="downloadFan()" class="btn btn-primary">Download Fan</button>
+            <div data-breadcrumb="history" data-config="bcConfig"></div>
+          </div>
           <div data-fan="rootPerson" data-config="fanConfig" class="tree"><!-- .go-back(ng-click='goBack()', ng-show='rootPerson.mainChild')
             <div class="mid">&laquo;</div>
             <div data-boxes="rootPerson" data-click-box="clickBox" class="rootPerson"></div>-->
           </div>
+          <div id="download-tree" data-fan="rootPerson" data-config="printConfig"></div>
         </script>
         <script id="settings.html" type="text/ng-template">
           <div data-settings-manager="familyfound" class="settings-manager">

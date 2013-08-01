@@ -7,6 +7,8 @@ var request = require('superagent')
   , angularSettings = require('angular-settings')
   , breadcrumb = require('breadcrumb')
   , dialog = require('dialog')
+  , svgDownload = require('svg-download')
+  , fan = require('fan')
 
   , defaultSettings = require('./settings')
   , app = require('./angular')
@@ -144,7 +146,7 @@ var mainControllers = {
     });
   },
 
-  PersonView: function ($scope, $route, $location, user, ffapi) {
+  PersonView: function ($scope, $route, $location, $compile, user, ffapi) {
     $scope.rootPerson = null;
 
     // Breadcrumbs
@@ -166,6 +168,17 @@ var mainControllers = {
       // $scope.$digest();
     }
 
+    $scope.printConfig = {
+      printable: true,
+      gens: settings.get('main.displayGens'),
+      links: false,
+      width: 1200,
+      height: 900,
+      center: {x: 600, y: 600},
+      ringWidth: 40,
+      doubleWidth: true,
+      tips: false
+    };
     $scope.fanConfig = {
       gens: settings.get('main.displayGens'),
       links: false,
@@ -197,29 +210,31 @@ var mainControllers = {
         });
       }
     };
-    $scope.clickBox = function (person, node) {
-      console.log('clicked', person, node);
-      person.hideParents = true;
-      $location.path('/person/' + person.id);
-      $scope.$apply();
-    };
-    $scope.goBack = function () {
-      if (!$scope.rootPerson.mainChild) return;
-      if ($scope.rootPerson.mainChild.id === user.personId) {
-        $location.path('/');
-      } else {
-        $location.path('/person/' + $scope.rootPerson.mainChild.id);
+    $scope.downloadFan = function () {
+      if ($scope.loadingPeople > 0) {
+        console.log('still loading', $scope.loadingPeople);
+        return;
       }
-      $scope.rootPerson.hideParents = true;
-      $scope.apply();
+      var svg = document.getElementById('download-tree').firstElementChild
+        , data = svgDownload('Family Tree: ' + $scope.rootPerson.display.name, svg, fan.stylesheet);
+      document.location = data;
     };
+    $scope.loadingPeople = 1;
     user(function(user) {
       var personId = $route.current.params.id || user.personId;
       console.log('getting for', personId);
       $scope.history = getHistory(personId);
+      var get = function (pid, next) {
+        $scope.loadingPeople++;
+        ffapi.relation(pid, function (person, cached) {
+          $scope.loadingPeople--;
+          next(person, cached);
+        });
+      };
       ffapi.relation(personId, function (person, cached) {
         $scope.rootPerson = person;
-        loadPeople(ffapi.relation, person, $scope, settings.get('main.displayGens'), true);
+        $scope.loadingPeople--;
+        loadPeople(get, person, $scope, settings.get('main.displayGens')  - 1, true);
         if (!cached) $scope.$digest();
       });
     });

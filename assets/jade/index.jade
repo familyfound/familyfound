@@ -26,11 +26,14 @@ block container
       script(id='personView.html', type='text/ng-template')
         h1 {{ rootPerson.display.name || "Loading" }} Tree
         a(href='https://familysearch.org/tree/#view=ancestor&person={{rootPerson.id}}', target='_blank') View on FamilySearch.org
-        div.pull-right(data-breadcrumb="history", data-config="bcConfig")
+        div.pull-right
+          button.btn.btn-primary(ng-class="{disabled: loadingPeople > 0}", ng-click="downloadFan()") Download Fan
+          div(data-breadcrumb="history", data-config="bcConfig")
         .tree(data-fan="rootPerson", data-config='fanConfig')
           // .go-back(ng-click='goBack()', ng-show='rootPerson.mainChild')
             .mid &laquo;
             .rootPerson(data-boxes='rootPerson', data-click-box='clickBox')
+        #download-tree(data-fan="rootPerson", data-config='printConfig')
       script(id="settings.html", type="text/ng-template")
         .settings-manager(data-settings-manager='familyfound').
           You will see your settings in good time.

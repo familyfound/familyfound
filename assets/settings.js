@@ -3,10 +3,10 @@ module.exports = {
   main: {
     _group: true,
     displayGens: {
-      value: 7,
+      value: 9,
       range: {
         min: 3,
-        max: 7
+        max: 9
       },
       type: 'range',
       description: 'the number of generations to display'
