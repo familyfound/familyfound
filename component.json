@@ -2,7 +2,7 @@
   "name": "familyfound",
   "repo": "familyfound/familyfound",
   "description": "Streamlining family history research",
-  "version": "0.0.1",
+  "version": "0.1.1",
   "keywords": [],
   "dependencies": {
     "visionmedia/superagent": "*",
