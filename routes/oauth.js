@@ -8,7 +8,7 @@ var OAuth = require('oauth').OAuth
   , config = require('../lib/config')
   , callback_path = '/oauth/callback'
   , API_BASE = 'https://api.familysearch.org/identity/v2/'
-  , callback_uri = config.HOST + (config.PORT ? ':' + config.PORT : '') + callback_path
+  , callback_uri = (config.CALLBACK_HOST || (config.HOST + (config.PORT ? ':' + config.PORT : '')) + callback_path
   , oa = createOAuth(API_BASE, config.OAUTH_KEY, config.OAUTH_SECRET, callback_uri);
 
 var Unauthorized = function () {
