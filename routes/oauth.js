@@ -5,7 +5,7 @@ var OAuth = require('oauth').OAuth
   , util = require('util')
   , fs = require('familysearch').single()
 
-  , config = require('../config.yaml')
+  , config = require('../lib/config')
   , callback_path = '/oauth/callback'
   , API_BASE = 'https://api.familysearch.org/identity/v2/'
   , callback_uri = config.HOST + (config.PORT ? ':' + config.PORT : '') + callback_path

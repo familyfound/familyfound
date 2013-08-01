@@ -1,4 +1,4 @@
-var config = require('../config.yaml')
+var config = require('../lib/config')
   , request = require('superagent')
   , ObjectID = require('mongodb').ObjectID
 
