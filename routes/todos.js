@@ -87,7 +87,7 @@ var items = {
       res.send({id: items[0]._id.toString()});
     });
   }
-}
+};
 
 function personalize(uid, todos) {
   todos.forEach(function (todo) {
@@ -124,11 +124,12 @@ var gets = {
 };
  
 module.exports.addRoutes = function (app) {
-  for (var name in items) {
+  var name;
+  for (name in items) {
     if (!items.hasOwnProperty(name)) continue;
     app.post('/api/todos/' + name, api.checkLogin, items[name]);
   }
-  for (var name in gets) {
+  for (name in gets) {
     if (!gets.hasOwnProperty(name)) continue;
     app.get('/api/todos/' + name, api.checkLogin, gets[name]);
   }

@@ -41,11 +41,12 @@ var gets = {
 };
  
 module.exports.addRoutes = function (app) {
-  for (var name in posts) {
+  var name;
+  for (name in posts) {
     if (!posts.hasOwnProperty(name)) continue;
     app.post('/api/alerts/' + name, api.checkLogin, posts[name]);
   }
-  for (var name in gets) {
+  for (name in gets) {
     if (!gets.hasOwnProperty(name)) continue;
     app.get('/api/alerts/' + name, api.checkLogin, gets[name]);
   }

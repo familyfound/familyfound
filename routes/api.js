@@ -47,7 +47,7 @@ function parseRelations(data) {
   }
   person.familyIds = families;
   return person;
-};
+}
 
 function getPersonRelations(req, res) {
   if (!req.params.id) return {error: 'no person id'};
