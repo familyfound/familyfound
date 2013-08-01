@@ -29,10 +29,12 @@ static/index.html: $(wildcard assets/jade/*.jade) assets/pages.js
 	@echo "Jade"
 	@./build.js
 
-test:
-	@echo "No tests yet"
+test: lint
 
-reboot:
+lint:
+	./node_modules/.bin/jshint lib/* routes/* *.js
+
+clean:
 	@rm -rf node_modules components
 
-.PHONY: test reboot serve heroku local_build
+.PHONY: test clean serve heroku local_build lint
