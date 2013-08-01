@@ -14,7 +14,7 @@ build/build.js: static/index.html $(stylus_files) $(javascript_files)
 	@component build --dev --use component-stylus
 
 local_build: node_modules components static/index.html $(stylus_files) $(javascript_files)
-	@DEBUG=component:installer ./node_modules/.bin/component build --dev --use component-stylus
+	@DEBUG=* ./node_modules/.bin/component build --dev --use component-stylus
 
 components: component.json
 	@./node_modules/.bin/component install
