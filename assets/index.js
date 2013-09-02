@@ -146,6 +146,28 @@ var mainControllers = {
     });
   },
 
+  PhotosView: function ($scope, $route, $location, $compile, user, ffapi) {
+    $scope.loadingPeople = 1;
+    user(function(user) {
+      var personId = $route.current.params.id || user.personId;
+      console.log('getting for', personId);
+      $scope.history = getHistory(personId);
+      var get = function (pid, next) {
+        $scope.loadingPeople++;
+        ffapi.relation(pid, function (person, cached) {
+          $scope.loadingPeople--;
+          next(person, cached);
+        });
+      };
+      ffapi.relation(personId, function (person, cached) {
+        $scope.rootPerson = person;
+        $scope.loadingPeople--;
+        loadPeople(get, person, $scope, settings.get('main.displayGens')  - 1, true);
+        if (!cached) $scope.$digest();
+      });
+    });
+  },
+
   PersonView: function ($scope, $route, $location, $compile, user, ffapi) {
     $scope.rootPerson = null;
 
@@ -172,6 +194,7 @@ var mainControllers = {
       printable: true,
       gens: settings.get('main.displayGens'),
       links: false,
+      families: false,
       width: 1200,
       height: 900,
       center: {x: 600, y: 600},
@@ -210,30 +233,81 @@ var mainControllers = {
         });
       }
     };
-    $scope.downloadFan = function () {
+    $scope.photosConfig = {
+      gens: 7,
+      height: 1220,
+      width: 1220,
+      sweep: Math.PI*2,
+      photos: true,
+      center: {x: 610, y: 610},
+      families: false,
+      svgtips: true,
+      printable: true,
+      doubleWidth: false,
+      ringWidth: 85,
+      links: false,
+      onSpouse: function (el, person) {
+        el.on('click', function () {
+          navigate(person, 'side');
+        });
+      },
+      onChild: function (el, person) {
+        el.on('click', function () {
+          navigate(person, 'down');
+        });
+      },
+      onParent: function (el, person, node) {
+        el.on('click', function () {
+          navigate(person, 'up');
+        });
+        if (node.photo) {
+          node.photo.on('click', function () {
+            navigate(person, 'up');
+          });
+        }
+      }
+    };
+    $scope.photosSvg = '#';
+    $scope.downloadPhotos = function ($event) {
       if ($scope.loadingPeople > 0) {
         console.log('still loading', $scope.loadingPeople);
         return;
       }
-      var svg = document.getElementById('download-tree').firstElementChild
-        , data = svgDownload('Family Tree: ' + $scope.rootPerson.display.name, svg, fan.stylesheet);
-      document.location = data;
+      var svg = document.getElementById('photos-tree').firstElementChild;
+      $event.target.href = svgDownload('Family Tree Photos: ' + $scope.rootPerson.display.name, svg, fan.stylesheet);
+    };
+    $scope.downloadFan = function ($event) {
+      if ($scope.loadingPeople > 0) {
+        console.log('still loading', $scope.loadingPeople);
+        return;
+      }
+      var svg = document.getElementById('download-tree').firstElementChild;
+      $event.target.href = svgDownload('Family Tree: ' + $scope.rootPerson.display.name, svg, fan.stylesheet);
     };
     $scope.loadingPeople = 1;
     user(function(user) {
       var personId = $route.current.params.id || user.personId;
       console.log('getting for', personId);
       $scope.history = getHistory(personId);
+      function getPhoto(pid, person) {
+        ffapi.photo(pid, function (photo, cached) {
+          person.photo = photo.thumbSquareUrl;
+          person.photolink = 'https://familysearch.org/tree/#view=ancestor&person=' + pid;
+          // if (!cached) $scope.$digest();
+        });
+      }
       var get = function (pid, next) {
         $scope.loadingPeople++;
         ffapi.relation(pid, function (person, cached) {
           $scope.loadingPeople--;
+          getPhoto(pid, person);
           next(person, cached);
         });
       };
       ffapi.relation(personId, function (person, cached) {
         $scope.rootPerson = person;
         $scope.loadingPeople--;
+        getPhoto(personId, person);
         loadPeople(get, person, $scope, settings.get('main.displayGens')  - 1, true);
         if (!cached) $scope.$digest();
       });

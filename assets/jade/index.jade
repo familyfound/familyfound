@@ -27,12 +27,11 @@ block container
         h1 {{ rootPerson.display.name || "Loading" }} Tree
         a(href='https://familysearch.org/tree/#view=ancestor&person={{rootPerson.id}}', target='_blank') View on FamilySearch.org
         div.pull-right
-          button.btn.btn-primary(ng-class="{disabled: loadingPeople > 0}", ng-click="downloadFan()") Download Fan
+          a.btn.btn-primary(href='#', target='_blank', ng-class="{disabled: loadingPeople > 0}", ng-click="downloadFan($event)") Download Fan Chart
+          a.btn.btn-primary(href="#", target="_blank", ng-class="{disabled: loadingPeople > 0}", ng-mousedown="downloadPhotos($event)") Download Photos Chart
           div(data-breadcrumb="history", data-config="bcConfig")
         .tree(data-fan="rootPerson", data-config='fanConfig')
-          // .go-back(ng-click='goBack()', ng-show='rootPerson.mainChild')
-            .mid &laquo;
-            .rootPerson(data-boxes='rootPerson', data-click-box='clickBox')
+        #photos-tree(data-fan="rootPerson", data-config='photosConfig')
         #download-tree(data-fan="rootPerson", data-config='printConfig')
       script(id="settings.html", type="text/ng-template")
         .settings-manager(data-settings-manager='familyfound').

@@ -105,6 +105,15 @@ function getPerson(req, res) {
   });
 }
 
+function getPersonPhoto(req, res) {
+  request.get('https://familysearch.org/artifactmanager/persons/personsByTreePersonId/' + req.params.id + '/summary')
+    .set('Authorization', 'Bearer ' + req.session.oauth.access_token)
+    .end(function (err, response) {
+      if (err) return res.send({error: 'Failed to get photo', details: err});
+      res.send(response.body);
+    });
+}
+
 function setStatus(req, res) {
   var db = getDb();
   db.collection('status').update({
@@ -122,6 +131,7 @@ function setStatus(req, res) {
 }
 
 exports.addRoutes = function (app) {
+  app.get('/api/person/photo/:id', oauth.checkLogin, getPersonPhoto);
   app.get('/api/person/relations/:id', oauth.checkLogin, getPersonRelations);
   app.get('/api/person/:id', oauth.checkLogin, getPerson);
   app.post('/api/person/status', oauth.checkLogin, setStatus);

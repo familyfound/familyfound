@@ -29,12 +29,18 @@ module.exports = exports = {
       path: '/person/',
       match: true,
       title: 'Tree'
+    }, {
+      path: '/photos/',
+      match: true,
+      title: 'Photos'
     }
   ],
   routes: {
     '/': 'TodoView',
     '/person/': 'PersonView',
     '/person/:id': 'PersonView',
+    '/photos/': 'PhotosView',
+    '/photos/:id': 'PhotosView',
     // '/settings': 'Settings'
   }
 };
