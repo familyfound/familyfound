@@ -39,6 +39,27 @@ body {
   }
 }
 
+.fan-borders {
+  path {
+    stroke-width: 1px;
+  }
+}
+
+.arc.person {
+  stroke: none;
+}
+
+.indicator {
+  fill: transparent;
+  
+  &.one-child {
+    fill: red;
+  }
+  &.few-children {
+    fill: orange;
+  }
+}
+
 #photos-tree,
 #download-tree {
   display: none;

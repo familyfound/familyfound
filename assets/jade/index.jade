@@ -28,6 +28,8 @@ block container
         h1 {{ rootPerson.display.name || "Loading" }} Tree
         a(href='https://familysearch.org/tree/#view=ancestor&person={{rootPerson.id}}', target='_blank') View on FamilySearch.org
         div.pull-right
+          .btn.btn-warning(ng-click="clearCache()", data-toggle="tooltip", title="clear cached data")
+            i.icon-refresh
           a.btn.btn-primary(href='#', target='_blank', ng-class="{disabled: loadingPeople > 0}", ng-click="downloadFan($event)") Download Fan Chart
           a.btn.btn-primary(href="#", target="_blank", ng-class="{disabled: loadingPeople > 0}", ng-mousedown="downloadPhotos($event)") Download Photos Chart
           div(data-breadcrumb="history", data-config="bcConfig")

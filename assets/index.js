@@ -196,6 +196,11 @@ var mainControllers = {
       // $scope.$digest();
     }
 
+    $scope.clearCache = function () {
+      ffapi.clear();
+      location.refresh();
+    };
+
     $scope.printConfig = {
       printable: true,
       gens: settings.get('main.displayGens'),
@@ -214,8 +219,9 @@ var mainControllers = {
       width: 800,
       height: 600,
       center: {x: 400, y: 400},
-      ringWidth: 30,
-      doubleWidth: true,
+      ringWidth: 35,
+      doubleWidth: false,
+      indicators: true,
       tips: function (person) {
         var message = '<span class="name">' + person.display.name + '</span> ' +
                       '<span class="life">' + person.display.lifespan + '</span>';
@@ -254,7 +260,7 @@ var mainControllers = {
           navigate(person, 'down');
         });
       },
-      onParent: function (el, person) {
+      onParent: function (el, person, node) {
         el.on('click', function () {
           navigate(person, 'up');
         });
@@ -264,8 +270,8 @@ var mainControllers = {
           kids += person.familyIds[spouse].length - 1;
         }
         var kidsClass = kids === 1 ? 'one-child' : (kids < 4 ? 'few-children' : '');
-        if (kidsClass) {
-          el.classed(kidsClass, true);
+        if (kidsClass && !(person.display.lifespan && person.display.lifespan.match(/Living/i))) {
+          node.indicators[0].classed(kidsClass, true);
         }
       },
       onNode: function (el, person) {
@@ -275,6 +281,7 @@ var mainControllers = {
         });
       }
     };
+    /*
     $scope.photosConfig = {
       gens: 7,
       height: 1220,
@@ -309,6 +316,8 @@ var mainControllers = {
         }
       }
     };
+    */
+    /*
     $scope.photosSvg = '#';
     $scope.downloadPhotos = function ($event) {
       if ($scope.loadingPeople > 0) {
@@ -318,6 +327,7 @@ var mainControllers = {
       var svg = document.getElementById('photos-tree').firstElementChild;
       $event.target.href = svgDownload('Family Tree Photos: ' + $scope.rootPerson.display.name, svg, fan.stylesheet);
     };
+    */
     $scope.downloadFan = function ($event) {
       if ($scope.loadingPeople > 0) {
         console.log('still loading', $scope.loadingPeople);
@@ -331,6 +341,7 @@ var mainControllers = {
       var personId = $route.current.params.id || user.personId;
       console.log('getting for', personId);
       $scope.history = getHistory(personId);
+      /*
       function getPhoto(pid, person) {
         ffapi.photo(pid, function (photo, cached) {
           person.photo = photo.thumbSquareUrl;
@@ -338,18 +349,19 @@ var mainControllers = {
           // if (!cached) $scope.$digest();
         });
       }
+      */
       var get = function (pid, next) {
         $scope.loadingPeople++;
         ffapi.relation(pid, function (person, cached) {
           $scope.loadingPeople--;
-          getPhoto(pid, person);
+          // getPhoto(pid, person);
           next(person, cached);
         });
       };
       ffapi.relation(personId, function (person, cached) {
         $scope.rootPerson = person;
         $scope.loadingPeople--;
-        getPhoto(personId, person);
+        // getPhoto(personId, person);
         loadPeople(get, person, $scope, settings.get('main.displayGens')  - 1, true);
         if (!cached) $scope.$digest();
       });

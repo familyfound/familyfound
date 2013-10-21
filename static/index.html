@@ -38,7 +38,8 @@
         </script>
         <script id="personView.html" type="text/ng-template">
           <h1>{{ rootPerson.display.name || "Loading" }} Tree</h1><a href="https://familysearch.org/tree/#view=ancestor&amp;person={{rootPerson.id}}" target="_blank">View on FamilySearch.org</a>
-          <div class="pull-right"><a href="#" target="_blank" ng-class="{disabled: loadingPeople &gt; 0}" ng-click="downloadFan($event)" class="btn btn-primary">Download Fan Chart</a><a href="#" target="_blank" ng-class="{disabled: loadingPeople &gt; 0}" ng-mousedown="downloadPhotos($event)" class="btn btn-primary">Download Photos Chart</a>
+          <div class="pull-right">
+            <div ng-click="clearCache()" data-toggle="tooltip" title="clear cached data" class="btn btn-warning"><i class="icon-refresh"></i></div><a href="#" target="_blank" ng-class="{disabled: loadingPeople &gt; 0}" ng-click="downloadFan($event)" class="btn btn-primary">Download Fan Chart</a><a href="#" target="_blank" ng-class="{disabled: loadingPeople &gt; 0}" ng-mousedown="downloadPhotos($event)" class="btn btn-primary">Download Photos Chart</a>
             <div data-breadcrumb="history" data-config="bcConfig"></div>
           </div>
           <div data-fan="rootPerson" data-config="fanConfig" class="tree"></div>
