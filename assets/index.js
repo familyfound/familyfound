@@ -217,18 +217,31 @@ var mainControllers = {
       ringWidth: 30,
       doubleWidth: true,
       tips: function (person) {
-        var message = person.display.name + ' ' + person.display.lifespan;
-        if (person.display.birthPlace) {
-          message += '<br>Born: ' + person.display.birthPlace;
-        }
-        if (person.display.deathPlace) {
-          message += '<br>Died: ' + person.display.deathPlace;
+        var message = '<span class="name">' + person.display.name + '</span> ' +
+                      '<span class="life">' + person.display.lifespan + '</span>';
+        if (person.display.birthPlace &&
+            person.display.deathPlace &&
+            person.display.birthPlace.toLowerCase() === person.display.deathPlace.toLowerCase()) {
+          message += '<br><span class="born-died"><span class="title">Born and Died:</span> ' +
+                     person.display.birthPlace + '</span>';
+        } else {
+          if (person.display.birthPlace) {
+            message += '<br><span class="born"><span class="title">Born:</span> ' +
+                       person.display.birthPlace + '</span>';
+          }
+          if (person.display.deathPlace) {
+            message += '<br><span class="died"><span class="title">Died:</span> ' +
+                       person.display.deathPlace + '</span>';
+          }
         }
         var kids = 0;
         for (var spouse in person.familyIds) {
-          kids += person.familyIds[spouse].length;
+          // list starts w/ the id of the spouse
+          kids += person.familyIds[spouse].length - 1;
         }
-        message += '<br>' + kids + ' children';
+        var kidsClass = kids === 1 ? 'one-child' : (kids < 4 ? 'few-children' : '')
+        message += '<br><span class="children ' + kidsClass + '">' +
+                   kids + ' ' + (kids === 1 ? 'child' : 'children') + '</span>';
         return message;
       },
       onSpouse: function (el, person) {
@@ -245,6 +258,15 @@ var mainControllers = {
         el.on('click', function () {
           navigate(person, 'up');
         });
+        var kids = 0;
+        for (var spouse in person.familyIds) {
+          // list starts w/ the id of the spouse
+          kids += person.familyIds[spouse].length - 1;
+        }
+        var kidsClass = kids === 1 ? 'one-child' : (kids < 4 ? 'few-children' : '');
+        if (kidsClass) {
+          el.classed(kidsClass, true);
+        }
       },
       onNode: function (el, person) {
         el.on('click', function () {

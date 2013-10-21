@@ -8,6 +8,34 @@ body {
   margin: 0;
 }
 
+.fan-tip {
+  color: #aaa;
+
+  .name {
+    font-weight: bold;
+    font-size: 13px;
+    color: white;
+  }
+  .one-child {
+    color: red;
+    font-weight: bold;
+  }
+  .few-children {
+    color: #faa;
+    font-weight: bold;
+  }
+}
+
+.person {
+  &.one-child {
+    // stroke: #faa;
+  }
+
+  &.few-children {
+    // stroke: #fa7;
+  }
+}
+
 #photos-tree,
 #download-tree {
   display: none;
