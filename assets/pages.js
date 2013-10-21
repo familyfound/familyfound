@@ -29,11 +29,11 @@ module.exports = exports = {
       path: '/person/',
       match: true,
       title: 'Tree'
-    }, {
+    }/*, {
       path: '/photos/',
       match: true,
       title: 'Photos'
-    }
+    }*/
   ],
   routes: {
     '/': 'TodoView',

@@ -53,7 +53,7 @@ var loadPeople = function (get, base, scope, gens, root) {
         if (!cached) scope.$digest();
       });
   }
-  if (root) {
+  if (root && 'object' === typeof base.familyIds) {
     Object.keys(base.familyIds).forEach(function (spouseId) {
       if (!base.families[spouseId]) base.families[spouseId] = [null];
       for (var i=0; i<base.familyIds[spouseId].length; i++) {
@@ -119,11 +119,17 @@ var mainControllers = {
       $scope.$digest();
     };
 
+    $scope.loadingTodos = true;
     user(function(user) {
       var personId = $route.current.params.id || user.personId;
       request.get('/api/todos/list')
         .end(function (err, req) {
+          $scope.loadingTodos = false;
           if (err) return console.error('Failed to get todos');
+          if (req.status == 401) {
+            console.error('Not authorized....');
+            return window.location.reload();
+          }
           $scope.todos = req.body;
           $scope.todos.owned.forEach(function (todo) {
             todo.owned = true;
@@ -210,7 +216,21 @@ var mainControllers = {
       center: {x: 400, y: 400},
       ringWidth: 30,
       doubleWidth: true,
-      tips: true,
+      tips: function (person) {
+        var message = person.display.name + ' ' + person.display.lifespan;
+        if (person.display.birthPlace) {
+          message += '<br>Born: ' + person.display.birthPlace;
+        }
+        if (person.display.deathPlace) {
+          message += '<br>Died: ' + person.display.deathPlace;
+        }
+        var kids = 0;
+        for (var spouse in person.familyIds) {
+          kids += person.familyIds[spouse].length;
+        }
+        message += '<br>' + kids + ' children';
+        return message;
+      },
       onSpouse: function (el, person) {
         el.on('click', function () {
           navigate(person, 'side');

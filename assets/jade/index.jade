@@ -15,6 +15,7 @@ block container
     .templates
       script(id='todoView.html', type='text/ng-template')
         h4 Your Todos
+        .loading(ng-show='loadingTodos') Loading your todos...
         .todo(ng-repeat='todo in todos.owned', data-todo='todo', data-dashboard='true')
           span more replaces
         h4 Watched Todos

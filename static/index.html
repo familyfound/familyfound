@@ -29,6 +29,7 @@
       <div class="templates">
         <script id="todoView.html" type="text/ng-template">
           <h4>Your Todos</h4>
+          <div ng-show="loadingTodos" class="loading">Loading your todos...</div>
           <div ng-repeat="todo in todos.owned" data-todo="todo" data-dashboard="true" class="todo"><span>more replaces</span></div>
           <h4>Watched Todos</h4>
           <div ng-repeat="todo in todos.watching" data-todo="todo" data-dashboard="true" class="todo"><span>should be replaced</span></div><!-- .alerts
