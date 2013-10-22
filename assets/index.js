@@ -39,19 +39,36 @@ var loadPeople = function (get, base, scope, gens, root) {
     return null;
   }
   base.hideParents = false;
+  if (!base.line) {
+    base.line = getHistory(base.id);
+  }
+  // console.log('load', base.id, base.display.name, base.line.length);
+  var histItem = {
+    id: base.id,
+    link: '/person/' + base.id,
+    // add in date range here?
+    name: base.display.name + ' (' + base.display.lifespan + ')',
+    direction: null
+  };
   if (base.fatherId) {
     get(base.fatherId, function (data, cached) {
-        base.father = data;
-        loadPeople(get, base.father, scope, gens - 1);
-        if (!cached) scope.$digest();
-      });
+      base.father = data;
+      data.line = [histItem]
+      data.line = base.line.concat(data.line)
+      setHistory(data.id, data.line);
+      loadPeople(get, base.father, scope, gens - 1);
+      if (!cached) scope.$digest();
+    });
   }
   if (base.motherId) {
     get(base.motherId, function (data, cached) {
-        base.mother = data;
-        loadPeople(get, base.mother, scope, gens - 1);
-        if (!cached) scope.$digest();
-      });
+      base.mother = data;
+      data.line = [histItem]
+      data.line = base.line.concat(data.line)
+      setHistory(data.id, data.line);
+      loadPeople(get, base.mother, scope, gens - 1);
+      if (!cached) scope.$digest();
+    });
   }
   if (root && 'object' === typeof base.familyIds) {
     Object.keys(base.familyIds).forEach(function (spouseId) {
@@ -60,6 +77,8 @@ var loadPeople = function (get, base, scope, gens, root) {
         base.families[spouseId].push(null);
         get(base.familyIds[spouseId][i], function (i, data, cached) {
           base.families[spouseId][i] = data;
+          if (!data.line) data.line = [histItem]
+          data.line = base.line.concat(data.line)
           if (!cached) scope.$digest();
         }.bind(null, i));
       }
@@ -84,18 +103,19 @@ function storeKey(pid) {
 }
 
 function getHistory(pid) {
-  console.log('getting for pid', pid);
+  // console.log('getting for pid', pid);
   var key = storeKey(pid);
   if (localStorage[key]) {
     try {
-      return JSON.parse(localStorage[key]);
+      var ret = JSON.parse(localStorage[key]);
+      return ret;
     } catch (e) {}
   }
   return [];
 }
 
 function setHistory(pid, history) {
-  console.log('setting for pid', pid, history.length);
+  // console.log('setting for pid', pid, history.length);
   var key = storeKey(pid);
   localStorage[key] = JSON.stringify(history);
 }
@@ -120,7 +140,7 @@ var mainControllers = {
     };
 
     $scope.loadingTodos = true;
-    user(function(user) {
+    user(function(user, usercached) {
       var personId = $route.current.params.id || user.personId;
       request.get('/api/todos/list')
         .end(function (err, req) {
@@ -156,7 +176,7 @@ var mainControllers = {
     $scope.loadingPeople = 1;
     user(function(user) {
       var personId = $route.current.params.id || user.personId;
-      console.log('getting for', personId);
+      // console.log('getting for', personId);
       $scope.history = getHistory(personId);
       var get = function (pid, next) {
         $scope.loadingPeople++;
@@ -180,16 +200,23 @@ var mainControllers = {
     // Breadcrumbs
     $scope.bcConfig = {front:20, back: 20};
     $scope.history = [];
+    $scope.ffapi = ffapi;
+    ffapi.loaded = 0;
+    ffapi.loading = 0;
 
     function navigate(person, direction) {
-      console.log('navigate', person.id, $scope.rootPerson.id);
-      $scope.history.push({
-        id: $scope.rootPerson.id,
-        // add in date range here?
-        name: $scope.rootPerson.display.name + ' (' + $scope.rootPerson.display.lifespan + ')',
-        direction: direction
-      });
+      // console.log('navigate', person.id, $scope.rootPerson.id);
+      ffapi.loading = 0;
+      ffapi.loaded = 0;
+      /*
+      console.log('nav', person.id, person.line, $scope.history);
+      for (var i=0; i<person.line.length-1; i++) {
+        $scope.history.push(person.line[i]);
+        setHistory(person.line[i + 1].id, $scope.history);
+      }
+      $scope.history.push(person.line[person.line.length - 1]);
       setHistory(person.id, $scope.history);
+      */
       // window.location.hash = '#view=ancestor&person=' + person.id;
       $location.path('/person/' + person.id);
       $scope.$root.$digest();
@@ -200,6 +227,8 @@ var mainControllers = {
       ffapi.clear();
       location.refresh();
     };
+
+    $scope.focusedPerson = $scope.rootPerson;
 
     $scope.printConfig = {
       printable: true,
@@ -216,9 +245,9 @@ var mainControllers = {
     $scope.fanConfig = {
       gens: settings.get('main.displayGens'),
       links: false,
-      width: 800,
-      height: 600,
-      center: {x: 400, y: 400},
+      width: 650,
+      height: 475,
+      center: {x: 325, y: 350},
       ringWidth: 35,
       doubleWidth: false,
       indicators: true,
@@ -254,15 +283,24 @@ var mainControllers = {
         el.on('click', function () {
           navigate(person, 'side');
         });
+        el.on('mousedown', function (e) {
+          $scope.focusedPerson = person;
+        });
       },
       onChild: function (el, person) {
         el.on('click', function () {
           navigate(person, 'down');
         });
+        el.on('mousedown', function (e) {
+          $scope.focusedPerson = person;
+        });
       },
       onParent: function (el, person, node) {
         el.on('click', function () {
           navigate(person, 'up');
+        });
+        el.on('mousedown', function (e) {
+          $scope.focusedPerson = person;
         });
         var kids = 0;
         for (var spouse in person.familyIds) {
@@ -281,66 +319,19 @@ var mainControllers = {
         });
       }
     };
-    /*
-    $scope.photosConfig = {
-      gens: 7,
-      height: 1220,
-      width: 1220,
-      sweep: Math.PI*2,
-      photos: true,
-      center: {x: 610, y: 610},
-      families: false,
-      svgtips: true,
-      printable: true,
-      doubleWidth: false,
-      ringWidth: 85,
-      links: false,
-      onSpouse: function (el, person) {
-        el.on('click', function () {
-          navigate(person, 'side');
-        });
-      },
-      onChild: function (el, person) {
-        el.on('click', function () {
-          navigate(person, 'down');
-        });
-      },
-      onParent: function (el, person, node) {
-        el.on('click', function () {
-          navigate(person, 'up');
-        });
-        if (node.photo) {
-          node.photo.on('click', function () {
-            navigate(person, 'up');
-          });
-        }
-      }
-    };
-    */
-    /*
-    $scope.photosSvg = '#';
-    $scope.downloadPhotos = function ($event) {
-      if ($scope.loadingPeople > 0) {
-        console.log('still loading', $scope.loadingPeople);
-        return;
-      }
-      var svg = document.getElementById('photos-tree').firstElementChild;
-      $event.target.href = svgDownload('Family Tree Photos: ' + $scope.rootPerson.display.name, svg, fan.stylesheet);
-    };
-    */
     $scope.downloadFan = function ($event) {
       if ($scope.loadingPeople > 0) {
-        console.log('still loading', $scope.loadingPeople);
+        // console.log('still loading', $scope.loadingPeople);
         return;
       }
       var svg = document.getElementById('download-tree').firstElementChild;
       $event.target.href = svgDownload('Family Tree: ' + $scope.rootPerson.display.name, svg, fan.stylesheet);
     };
     $scope.loadingPeople = 1;
-    user(function(user) {
+    user(function(user, usercached) {
       var personId = $route.current.params.id || user.personId;
-      console.log('getting for', personId);
-      $scope.history = getHistory(personId);
+      // console.log('getting for', personId);
+      // $scope.history = getHistory(personId);
       /*
       function getPhoto(pid, person) {
         ffapi.photo(pid, function (photo, cached) {
@@ -359,11 +350,11 @@ var mainControllers = {
         });
       };
       ffapi.relation(personId, function (person, cached) {
-        $scope.rootPerson = person;
+        $scope.focusedPerson = $scope.rootPerson = person;
         $scope.loadingPeople--;
         // getPhoto(personId, person);
         loadPeople(get, person, $scope, settings.get('main.displayGens')  - 1, true);
-        if (!cached) $scope.$digest();
+        if (!usercached || !cached) $scope.$digest();
       });
     });
   }

@@ -1,0 +1,17 @@
+.person-vitals
+  .head
+    span(class="status {{ person.status }}")
+    a(href="/person/{{ person.id }}")
+      span.name {{ person.display.name }}
+      span.year {{ person.display.lifespan }}
+    a(href="https://familysearch.org/tree/#view=ancestor&person={{ person.id }}", target="_blank")
+      i.icon-external-link
+  .data
+    .birth(ng-show="person.display.birthDate || person.display.birthPlace")
+      span.title Birth
+      span.date {{ person.display.birthDate }}
+      span.place {{ person.display.birthPlace }}
+    .death(ng-show="person.display.deathDate || person.display.deathPlace")
+      span.title Death
+      span.date {{ person.display.deathDate }}
+      span.place {{ person.display.deathPlace }}

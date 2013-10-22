@@ -37,3 +37,43 @@ app.factory('user', function() {
   });
 });
 
+app.directive('personVitals', function () {
+  return {
+    replace: true,
+    restrict: 'A',
+    scope: {
+      person: '=personVitals'
+    },
+    templateUrl: 'person-vitals.html'
+  };
+});
+
+app.directive('personDetails', function () {
+  return {
+    replace: true,
+    restrict: 'A',
+    scope: {
+      person: '=personDetails'
+    },
+    templateUrl: 'person-details.html',
+    link: function (scope, el, attrs) {
+      function numChildren(families) {
+        var num = 0;
+        for (var spouse in families) {
+          num += families[spouse].length - 1;
+        }
+        return num;
+      }
+      scope.childClass = function (families) {
+        var num = numChildren(families);
+        if (num <= 1) return 'one-child';
+        if (num < 4) return 'few-children';
+        return '';
+      };
+      scope.numChildren = function (families) {
+        return numChildren(families);
+      };
+    }
+  };
+});
+

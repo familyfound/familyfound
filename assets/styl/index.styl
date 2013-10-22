@@ -1,9 +1,211 @@
 
 body {
   min-height: 500px;
-  padding-top: 50px;
 }
 
+.right-side {
+  min-width: 400px;
+}
+
+.history {
+  position: relative;
+
+  .look-down {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+}
+
+.breadcrumb-container {
+  max-height: 30px;
+  height: 30px;
+  overflow-y: hidden;
+  transition: max-height 1s ease;
+
+  &:hover {
+    max-height: 600px;
+    height: auto;
+    overflow-y: auto;
+
+    .look-down {
+      display: none;
+    }
+  }
+
+  .breadcrumb-help {
+    display: none;
+  }
+
+  ul {
+    margin: 5px 0;
+    padding: 0;
+  }
+  li {
+    list-style: none;
+    margin-bottom: 15px;
+
+    a {
+      border: 1px solid #ccc;
+      padding: 5px 10px;
+      border-radius: 5px;
+
+      &:active,
+      &:hover {
+        background-color: #eef;
+        text-decoration: none;
+      }
+    }
+  }
+}
+
+.person-vitals {
+  .head {
+
+    .status, .status.inactive {
+      background-color: #eee;
+    }
+    
+    .status.active {
+      background-color: #fbe;
+    }
+    
+    .status.clean {
+      background-color: rgb(150, 230, 255);
+    }
+    
+    .status.complete {
+      background-color: rgb(115, 255, 176);
+    }
+
+    .status {
+      display: inline-block;
+      width: 15px;
+      height: 15px;
+      border-radius: 5px;
+
+    }
+  }
+  span {
+    margin-right: 5px;
+  }
+  .title {
+    font-weight: bold;
+  }
+  .data {
+    font-size: 10px;
+  }
+}
+
+.person-details {
+  margin-top: 10px;
+
+  .num-children {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background-color: white;
+    padding: 0 7px;
+    font-size: 10px;
+    font-weight: bold;
+    border-top-left-radius: 5px;
+
+    &.one-child {
+      background-color: red;
+      color: white;
+    }
+    &.few-children {
+      background-color: orange;
+      color: white;
+    }
+  }
+
+  .main.person {
+    position: relative;
+    margin-bottom: 5px;
+    border-bottom: 2px solid #ccc;
+    padding-bottom: 5px;
+
+    .head {
+      font-size: 16px;
+      font-weight: bold;
+    }
+  }
+
+  .person {
+    position: relative;
+    margin-bottom: 5px;
+    border-bottom: 2px solid #ccc;
+    padding-bottom: 5px;
+    background-color: white;
+    cursor: default;
+
+    .head {
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    > .title {
+      font-size: 10px;
+      font-weight: bold;
+      position: absolute;
+      top: 0;
+      right: 0;
+      padding: 0 7px;
+      color: white;
+      border-top-right-radius: 4px;
+      border-bottom-left-radius: 5px;
+    }
+  }
+  .spouse {
+    border-left: 2px solid;
+    padding-left: 6px;
+  }
+  .spouse.male {
+    border-color: #39f;
+  }
+  .spouse.female {
+    border-color: #fad;
+  }
+  .father > .title {
+    background-color: #39f;
+  }
+  .spouse.male > .title {
+    background-color: #39f;
+  }
+  .child.male > .title {
+    background-color: #7cf;
+  }
+  .mother > .title {
+    background-color: #f3a;
+  }
+  .spouse.female > .title {
+    background-color: #f3a;
+  }
+  .child.female > .title {
+    background-color: #f7d;
+  }
+}
+
+.person-view {
+  .top {
+    margin-bottom: 10px;
+
+    .loading-person,
+    .person-name {
+      margin: 0 10px;
+      font-size: 16px;
+      font-weight: bold;
+    }
+    .loading {
+      margin-left: 10px;
+    }
+    .btn {
+      margin: 0 5px;
+    }
+  }
+}
+  
 .modal {
   margin: 0;
 }

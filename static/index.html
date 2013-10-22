@@ -6,13 +6,13 @@
     <link href="/css/build.css" rel="stylesheet" media="screen">
   </head>
   <body>
-    <div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar navbar-inverse">
       <div class="navbar-inner">
         <div class="container"><a data-toggle="collapse" data-target=".nav-collapse" class="btn btn-navbar"><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></a><a href="#" class="brand"><span>FamilyFound</span></a>
           <div class="nav-collapse collapse">
             <ul class="nav">
-              <li><a href="/"><span>Home</span></a></li>
-              <li><a href="#about"><span>About</span></a></li>
+              <li><a href="/"><span>Todos</span></a></li>
+              <li><a href="/person/"><span>Tree</span></a></li>
               <li><a href="https://github.com/familyfound/familyfound/issues" target="_blank"><span>Issues</span></a></li>
               <li><a href="https://github.com/familyfound/familyfound/" target="_blank" class="icon"><i class="icon-github icon-light"></i></a></li>
             </ul>
@@ -27,6 +27,36 @@
       </nav>
       <div id="pages" ng-view class="row-fluid"></div>
       <div class="templates">
+        <script id="person-vitals.html" type="text/ng-template">
+          <div class="person-vitals">
+            <div class="head"><span class="status {{ person.status }}"></span><a href="/person/{{ person.id }}"><span class="name">{{ person.display.name }}</span><span class="year">{{ person.display.lifespan }}</span></a><a href="https://familysearch.org/tree/#view=ancestor&amp;person={{ person.id }}" target="_blank"><i class="icon-external-link"></i></a></div>
+            <div class="data">
+              <div ng-show="person.display.birthDate || person.display.birthPlace" class="birth"><span class="title">Birth</span><span class="date">{{ person.display.birthDate }}</span><span class="place">{{ person.display.birthPlace }}</span></div>
+              <div ng-show="person.display.deathDate || person.display.deathPlace" class="death"><span class="title">Death</span><span class="date">{{ person.display.deathDate }}</span><span class="place">{{ person.display.deathPlace }}</span></div>
+            </div>
+          </div>
+        </script>
+        <script id="person-details.html" type="text/ng-template">
+          <div class="person-details">
+            <div person-vitals="person" class="person main"></div>
+            <div class="parents">
+              <div ng-show="person.father.display" class="person parent father"><span class="title">Father</span>
+                <div person-vitals="person.father"></div>
+              </div>
+              <div ng-show="person.mother.display" class="person parent mother"><span class="title">Mother</span>
+                <div person-vitals="person.mother"></div>
+              </div>
+            </div>
+            <div class="families">
+              <div ng-repeat="(spouseId, family) in person.families" class="family">
+                <div ng-repeat="person in family track by person.id" ng-show="person" class="person {{ $index === 0 ? 'spouse' : 'child' }} {{ person.display.gender === 'Female' ? 'female' : 'male' }}"><span class="title">{{ $index === 0 ? (person.display.gender === 'Female' ? 'Wife' : 'Husband') : (person.display.gender === 'Female' ? 'Daughter' : 'Son') }}</span>
+                  <div person-vitals="person"></div>
+                  <div ng-if="$index &gt; 0" class="{{ childClass(person.familyIds) }} num-children">{{ numChildren(person.familyIds) }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </script>
         <script id="todoView.html" type="text/ng-template">
           <h4>Your Todos</h4>
           <div ng-show="loadingTodos" class="loading">Loading your todos...</div>
@@ -37,14 +67,26 @@
           <div ng-repeat="alert in alerts" data-alert="alert" class="alert"></div>-->
         </script>
         <script id="personView.html" type="text/ng-template">
-          <h1>{{ rootPerson.display.name || "Loading" }} Tree</h1><a href="https://familysearch.org/tree/#view=ancestor&amp;person={{rootPerson.id}}" target="_blank">View on FamilySearch.org</a>
-          <div class="pull-right">
-            <div ng-click="clearCache()" data-toggle="tooltip" title="clear cached data" class="btn btn-warning"><i class="icon-refresh"></i></div><a href="#" target="_blank" ng-class="{disabled: loadingPeople &gt; 0}" ng-click="downloadFan($event)" class="btn btn-primary">Download Fan Chart</a><a href="#" target="_blank" ng-class="{disabled: loadingPeople &gt; 0}" ng-mousedown="downloadPhotos($event)" class="btn btn-primary">Download Photos Chart</a>
-            <div data-breadcrumb="history" data-config="bcConfig"></div>
+          <div class="person-view">
+            <div class="top"><span ng-hide="rootPerson.display.name" class="loading-person"><i class="icon-spin icon-refresh"></i>
+                <Loading>Tree</Loading></span><span ng-show="rootPerson.display.name" class="person-name">{{ rootPerson.display.name }} Tree</span><a href="https://familysearch.org/tree/#view=ancestor&amp;person={{rootPerson.id}}" target="_blank">View on FamilySearch.org</a><span class="loading">{{ ffapi.loaded }} / {{ ffapi.loading }}<i ng-show="ffapi.loading &gt; ffapi.loaded" class="icon-refresh icon-spin loading"></i></span>
+              <div ng-click="clearCache()" data-toggle="tooltip" title="clear cached data" class="btn btn-warning"><i class="icon-refresh"></i></div>
+              <div class="pull-right"><a href="#" target="_blank" ng-class="{disabled: loadingPeople &gt; 0}" ng-click="downloadFan($event)" class="btn btn-primary">Download Fan Chart</a>
+                <!-- a.btn.btn-primary(href="#", target="_blank", ng-class="{disabled: loadingPeople > 0}", ng-mousedown="downloadPhotos($event)") Download Photos Chart-->
+              </div>
+            </div>
+            <div class="right-side pull-right">
+              <div ng-show="rootPerson.line.length" class="history">
+                <h4>History</h4>
+                <div class="look-down">{{ rootPerson.line.length }}<i class="icon-arrow-down"></i></div>
+                <div data-breadcrumb="rootPerson.line" data-config="bcConfig"></div>
+              </div>
+              <div ng-show="person" person-details="focusedPerson" class="person-details"></div>
+            </div>
+            <div data-fan="rootPerson" data-config="fanConfig" class="tree"></div>
+            <div id="photos-tree" data-fan="rootPerson" data-config="photosConfig"></div>
+            <div id="download-tree" data-fan="rootPerson" data-config="printConfig"></div>
           </div>
-          <div data-fan="rootPerson" data-config="fanConfig" class="tree"></div>
-          <div id="photos-tree" data-fan="rootPerson" data-config="photosConfig"></div>
-          <div id="download-tree" data-fan="rootPerson" data-config="printConfig"></div>
         </script>
         <script id="settings.html" type="text/ng-template">
           <div data-settings-manager="familyfound" class="settings-manager">

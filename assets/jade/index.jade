@@ -13,6 +13,10 @@ block container
         a(href='{{item.path}}') {{ item.title }}
     #pages.row-fluid(ng-view)
     .templates
+      script(id="person-vitals.html", type='text/ng-template')
+        include vitals.jade
+      script(id="person-details.html", type='text/ng-template')
+        include person.jade
       script(id='todoView.html', type='text/ng-template')
         h4 Your Todos
         .loading(ng-show='loadingTodos') Loading your todos...
@@ -25,17 +29,33 @@ block container
           h4 Alerts
           .alert(ng-repeat='alert in alerts', data-alert='alert')
       script(id='personView.html', type='text/ng-template')
-        h1 {{ rootPerson.display.name || "Loading" }} Tree
-        a(href='https://familysearch.org/tree/#view=ancestor&person={{rootPerson.id}}', target='_blank') View on FamilySearch.org
-        div.pull-right
-          .btn.btn-warning(ng-click="clearCache()", data-toggle="tooltip", title="clear cached data")
-            i.icon-refresh
-          a.btn.btn-primary(href='#', target='_blank', ng-class="{disabled: loadingPeople > 0}", ng-click="downloadFan($event)") Download Fan Chart
-          a.btn.btn-primary(href="#", target="_blank", ng-class="{disabled: loadingPeople > 0}", ng-mousedown="downloadPhotos($event)") Download Photos Chart
-          div(data-breadcrumb="history", data-config="bcConfig")
-        .tree(data-fan="rootPerson", data-config='fanConfig')
-        #photos-tree(data-fan="rootPerson", data-config='photosConfig')
-        #download-tree(data-fan="rootPerson", data-config='printConfig')
+        .person-view
+          .top
+            span.loading-person(ng-hide="rootPerson.display.name")
+              i.icon-spin.icon-refresh
+              Loading Tree
+            span.person-name(ng-show="rootPerson.display.name") {{ rootPerson.display.name }} Tree
+            a(href='https://familysearch.org/tree/#view=ancestor&person={{rootPerson.id}}', target='_blank')
+              | View on FamilySearch.org
+            span.loading
+              | {{ ffapi.loaded }} / {{ ffapi.loading }}
+              i.icon-refresh.icon-spin.loading(ng-show="ffapi.loading > ffapi.loaded")
+            .btn.btn-warning(ng-click="clearCache()", data-toggle="tooltip", title="clear cached data")
+              i.icon-refresh
+            .pull-right
+              a.btn.btn-primary(href='#', target='_blank', ng-class="{disabled: loadingPeople > 0}", ng-click="downloadFan($event)") Download Fan Chart
+              // a.btn.btn-primary(href="#", target="_blank", ng-class="{disabled: loadingPeople > 0}", ng-mousedown="downloadPhotos($event)") Download Photos Chart
+          .right-side.pull-right
+            .history(ng-show="rootPerson.line.length")
+              h4 History
+              .look-down
+                {{ rootPerson.line.length }}
+                i.icon-arrow-down
+              div(data-breadcrumb="rootPerson.line", data-config="bcConfig")
+            .person-details(ng-show="person", person-details="focusedPerson")
+          .tree(data-fan="rootPerson", data-config='fanConfig')
+          #photos-tree(data-fan="rootPerson", data-config='photosConfig')
+          #download-tree(data-fan="rootPerson", data-config='printConfig')
       script(id="settings.html", type="text/ng-template")
         .settings-manager(data-settings-manager='familyfound').
           You will see your settings in good time.

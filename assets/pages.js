@@ -3,10 +3,11 @@ module.exports = exports = {
   nav: [
     {
       path: '/',
-      name: 'Home'
+      name: 'Todos'
     }, {
-      path: '#about',
-      name: 'About'
+      path: '/person/',
+      match: true,
+      name: 'Tree'
     }, {
       path: 'https://github.com/familyfound/familyfound/issues',
       name: 'Issues',
@@ -22,18 +23,6 @@ module.exports = exports = {
     }
   ],
   subNav: [
-    {
-      path: '/',
-      title: 'Todos'
-    }, {
-      path: '/person/',
-      match: true,
-      title: 'Tree'
-    }/*, {
-      path: '/photos/',
-      match: true,
-      title: 'Photos'
-    }*/
   ],
   routes: {
     '/': 'TodoView',
