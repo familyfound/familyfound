@@ -15,8 +15,8 @@
     "notablemind/loco": "*",
     "familyfound/fan": "*",
     "component/dialog": "*",
-    "familyfound/promise": "*",
     "familyfound/todo": "*",
+    "familyfound/promise": "*",
     "familyfound/breadcrumb": "*",
     "familyfound/svg-download": "*"
   },
