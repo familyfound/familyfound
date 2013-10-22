@@ -49,7 +49,7 @@
             </div>
             <div class="families">
               <div ng-repeat="(spouseId, family) in person.families" class="family">
-                <div ng-repeat="person in family track by person.id" ng-show="person" class="person {{ $index === 0 ? 'spouse' : 'child' }} {{ person.display.gender === 'Female' ? 'female' : 'male' }}"><span class="title">{{ $index === 0 ? (person.display.gender === 'Female' ? 'Wife' : 'Husband') : (person.display.gender === 'Female' ? 'Daughter' : 'Son') }}</span>
+                <div ng-repeat="person in family | filter:notNull" ng-show="person" class="person {{ $index === 0 ? 'spouse' : 'child' }} {{ person.display.gender === 'Female' ? 'female' : 'male' }}"><span class="title">{{ $index === 0 ? (person.display.gender === 'Female' ? 'Wife' : 'Husband') : (person.display.gender === 'Female' ? 'Daughter' : 'Son') }}</span>
                   <div person-vitals="person"></div>
                   <div ng-if="$index &gt; 0" class="{{ childClass(person.familyIds) }} num-children">{{ numChildren(person.familyIds) }}</div>
                 </div>

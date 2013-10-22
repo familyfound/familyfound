@@ -64,6 +64,9 @@ app.directive('personDetails', function () {
         }
         return num;
       }
+      scope.notNull = function (item) {
+        return !!item;
+      }
       scope.childClass = function (families) {
         var num = numChildren(families);
         if (num <= 1) return 'one-child';

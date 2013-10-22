@@ -201,31 +201,27 @@ var mainControllers = {
     $scope.bcConfig = {front:20, back: 20};
     $scope.history = [];
     $scope.ffapi = ffapi;
-    ffapi.loaded = 0;
+    if (ffapi.loading) {
+      ffapi.loaded -= ffapi.loading;
+    } else {
+      ffapi.loaded = 0;
+    }
     ffapi.loading = 0;
 
     function navigate(person, direction) {
-      // console.log('navigate', person.id, $scope.rootPerson.id);
-      ffapi.loading = 0;
-      ffapi.loaded = 0;
-      /*
-      console.log('nav', person.id, person.line, $scope.history);
-      for (var i=0; i<person.line.length-1; i++) {
-        $scope.history.push(person.line[i]);
-        setHistory(person.line[i + 1].id, $scope.history);
+      if (ffapi.loading) {
+        ffapi.loaded -= ffapi.loading;
+      } else {
+        ffapi.loaded = 0;
       }
-      $scope.history.push(person.line[person.line.length - 1]);
-      setHistory(person.id, $scope.history);
-      */
-      // window.location.hash = '#view=ancestor&person=' + person.id;
+      ffapi.loading = 0;
       $location.path('/person/' + person.id);
       $scope.$root.$digest();
-      // $scope.$digest();
     }
 
     $scope.clearCache = function () {
       ffapi.clear();
-      location.refresh();
+      location.reload();
     };
 
     $scope.focusedPerson = $scope.rootPerson;
