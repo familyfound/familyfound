@@ -337,11 +337,20 @@ var mainControllers = {
         });
       }
       */
+      function getSources(pid, person) {
+        // $scope.loadingPeople++;
+        ffapi.sources(pid, function (sources, cached) {
+          person.sources = sources.count;
+          // $scope.loadingPeople--;
+          if (!cached) $scope.$digest();
+        });
+      }
       var get = function (pid, next) {
         $scope.loadingPeople++;
         ffapi.relation(pid, function (person, cached) {
           $scope.loadingPeople--;
           // getPhoto(pid, person);
+          getSources(pid, person);
           next(person, cached);
         });
       };
