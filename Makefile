@@ -32,7 +32,7 @@ static/index.html: $(wildcard assets/jade/*.jade) assets/pages.js
 test: lint
 
 lint:
-	./node_modules/.bin/jshint lib/* routes/* *.js
+	./node_modules/.bin/jshint lib/* routes/* *.js assets --verbose
 
 clean:
 	@rm -rf node_modules components

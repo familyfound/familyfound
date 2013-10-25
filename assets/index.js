@@ -8,6 +8,7 @@ var request = require('superagent')
   , breadcrumb = require('breadcrumb')
   , dialog = require('dialog')
   , svgDownload = require('svg-download')
+  , d3 = require('d3')
   , fan = require('fan')
 
   , defaultSettings = require('./settings')
@@ -77,7 +78,7 @@ var loadPeople = function (get, base, scope, gens, root) {
         base.families[spouseId].push(null);
         get(base.familyIds[spouseId][i], function (i, data, cached) {
           base.families[spouseId][i] = data;
-          if (!data.line) data.line = [histItem]
+          data.line = [histItem]
           data.line = base.line.concat(data.line)
           if (!cached) scope.$digest();
         }.bind(null, i));
@@ -201,20 +202,10 @@ var mainControllers = {
     $scope.bcConfig = {front:20, back: 20};
     $scope.history = [];
     $scope.ffapi = ffapi;
-    if (ffapi.loading) {
-      ffapi.loaded -= ffapi.loading;
-    } else {
-      ffapi.loaded = 0;
-    }
-    ffapi.loading = 0;
+    ffapi.resetCounter();
 
     function navigate(person, direction) {
-      if (ffapi.loading) {
-        ffapi.loaded -= ffapi.loading;
-      } else {
-        ffapi.loaded = 0;
-      }
-      ffapi.loading = 0;
+      ffapi.resetCounter();
       $location.path('/person/' + person.id);
       $scope.$root.$digest();
     }
@@ -238,6 +229,18 @@ var mainControllers = {
       doubleWidth: true,
       tips: false
     };
+    function focus(person, el) {
+      return function () {
+        if (d3.event.button !== 2) return
+        $scope.focusedPerson = person
+        $scope.$digest()
+        d3.selectAll('path.focused', el[0][0].parentElement).classed('focused', false)
+        el.classed('focused', true)
+        d3.event.preventDefault()
+        d3.event.stopPropagation()
+        return false
+      }
+    }
     $scope.fanConfig = {
       gens: settings.get('main.displayGens'),
       links: false,
@@ -279,40 +282,46 @@ var mainControllers = {
         el.on('click', function () {
           navigate(person, 'side');
         });
-        el.on('mousedown', function (e) {
-          $scope.focusedPerson = person;
-        });
+        el.on('mousedown', focus(person, el))
+        el.on('contextmenu', function () {d3.event.preventDefault()});
       },
       onChild: function (el, person) {
         el.on('click', function () {
           navigate(person, 'down');
         });
-        el.on('mousedown', function (e) {
-          $scope.focusedPerson = person;
-        });
+        el.on('mousedown', focus(person, el))
+        el.on('contextmenu', function () {d3.event.preventDefault()});
       },
       onParent: function (el, person, node) {
         el.on('click', function () {
           navigate(person, 'up');
         });
-        el.on('mousedown', function (e) {
-          $scope.focusedPerson = person;
-        });
+        el.on('mousedown', focus(person, el))
+        el.on('contextmenu', function () {d3.event.preventDefault()});
+        if (person.display.lifespan && person.display.lifespan.match(/Living/i)) return
         var kids = 0;
         for (var spouse in person.familyIds) {
           // list starts w/ the id of the spouse
           kids += person.familyIds[spouse].length - 1;
         }
         var kidsClass = kids === 1 ? 'one-child' : (kids < 4 ? 'few-children' : '');
-        if (kidsClass && !(person.display.lifespan && person.display.lifespan.match(/Living/i))) {
+        if (kidsClass) {
           node.indicators[0].classed(kidsClass, true);
         }
       },
-      onNode: function (el, person) {
-        el.on('click', function () {
-          $location.path('/person/' + person.id);
-          $scope.$root.$digest();
-        });
+      onRoot: function (el, person, node) {
+        if (person.display.lifespan && person.display.lifespan.match(/Living/i)) return
+        var kids = 0;
+        for (var spouse in person.familyIds) {
+          // list starts w/ the id of the spouse
+          kids += person.familyIds[spouse].length - 1;
+        }
+        el.on('mousedown', focus(person, el))
+        el.on('contextmenu', function () {d3.event.preventDefault()});
+        var kidsClass = kids === 1 ? 'one-child' : (kids < 4 ? 'few-children' : '');
+        if (kidsClass) {
+          node.indicators[0].classed(kidsClass, true);
+        }
       }
     };
     $scope.downloadFan = function ($event) {

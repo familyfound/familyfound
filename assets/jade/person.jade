@@ -1,19 +1,30 @@
 .person-details
-  .person.main(person-vitals="person")
+  .person.main
+    div(person-vitals="person")
+    div(class="{{ childClass(person) }} num-children")
+      | {{ numChildren(person.familyIds) }}
   .parents
     .person.parent.father(ng-show="person.father.display")
       span.title Father
       div(person-vitals="person.father")
+      div(class="{{ childClass(person.father) }} num-children")
+        | {{ numChildren(person.father.familyIds) }}
     .person.parent.mother(ng-show="person.mother.display")
       span.title Mother
       div(person-vitals="person.mother")
+      div(class="{{ childClass(person.mother) }} num-children")
+        | {{ numChildren(person.mother.familyIds) }}
   .families
+   .loading-families(ng-show="loading")
+     i.icon-refresh.icon-spin
+     | Loading families {{ loading }}
    .family(ng-repeat="(spouseId, family) in person.families")
      div(ng-repeat="person in family | filter:notNull", ng-show="person",
          class="person {{ $index === 0 ? 'spouse' : 'child' }} {{ person.display.gender === 'Female' ? 'female' : 'male' }}")
-       span.title {{ $index === 0 ?
-                     (person.display.gender === 'Female' ? 'Wife' : 'Husband') :
-                     (person.display.gender === 'Female' ? 'Daughter' : 'Son') }}
+       span.title
+         | {{ $index === 0 ?
+         |    (person.display.gender === 'Female' ? 'Wife' : 'Husband') :
+         |    (person.display.gender === 'Female' ? 'Daughter' : 'Son') }}
        div(person-vitals="person")
-       div(ng-if="$index > 0", class="{{ childClass(person.familyIds) }} num-children")
+       div(class="{{ childClass(person) }} num-children")
          | {{ numChildren(person.familyIds) }}

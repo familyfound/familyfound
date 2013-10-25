@@ -7,6 +7,14 @@ var config = require('../lib/config')
   , debug = require('debug')('familyfound:api')
   , fs = require('familysearch').single();
 
+function agespan(lifespan) {
+  var parts = lifespan.split('-')
+    , born = parseInt(parts[0], 10)
+    , died = parseInt(parts[1], 10)
+  if (isNaN(born) || isNaN(died)) return undefined
+  return died - born
+}
+
 function parseRelations(data) {
   var person = {
     display: data.persons[0].display,
@@ -19,6 +27,9 @@ function parseRelations(data) {
     families: {},
     familyIds: {}
   };
+  if (person.display.lifespan) {
+    person.display.age = agespan(person.display.lifespan)
+  }
   var families = {};
   if (data.childAndParentsRelationships) {
     data.childAndParentsRelationships.forEach(function (rel) {

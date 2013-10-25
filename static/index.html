@@ -29,29 +29,38 @@
       <div class="templates">
         <script id="person-vitals.html" type="text/ng-template">
           <div class="person-vitals">
-            <div class="head"><span class="status {{ person.status }}"></span><a href="/person/{{ person.id }}"><span class="name">{{ person.display.name }}</span><span class="year">{{ person.display.lifespan }}</span></a><a href="https://familysearch.org/tree/#view=ancestor&amp;person={{ person.id }}" target="_blank"><i class="icon-external-link"></i></a></div>
+            <div class="head"><span class="status {{ person.status }}"></span><a href="/person/{{ person.id }}"><span class="name">{{ person.display.name }}</span><span ng-show="!person.display.name" class="noname">No Name</span><span class="year">{{ person.display.lifespan }}</span></a><i ng-click="$parent.person = person" class="icon-arrow-up focus-me"></i><a href="https://familysearch.org/tree/#view=ancestor&amp;person={{ person.id }}" target="_blank"><i class="icon-external-link"></i></a></div>
             <div class="data">
-              <div ng-show="person.display.birthDate || person.display.birthPlace" class="birth"><span class="title">Birth</span><span class="date">{{ person.display.birthDate }}</span><span class="place">{{ person.display.birthPlace }}</span></div>
-              <div ng-show="person.display.deathDate || person.display.deathPlace" class="death"><span class="title">Death</span><span class="date">{{ person.display.deathDate }}</span><span class="place">{{ person.display.deathPlace }}</span></div>
+              <div ng-show="person.display.birthDate || person.display.birthPlace" class="birth"><span class="title">Birth</span><span class="date">{{ person.display.birthDate }}</span><span title="{{ person.display.birthPlace }}" data-toggle="tooltip" class="place">{{ person.display.birthPlace | trunk:20 }}</span></div>
+              <div ng-show="person.display.deathDate || person.display.deathPlace" class="death"><span class="title">Death</span><span class="date">{{ person.display.deathDate }}</span><span title="{{ person.display.deathPlace }}" data-toggle="tooltip" class="place">{{ person.display.deathPlace | trunk:20 }}</span><span ng-show="person.display.age" class="title">Age</span><span class="age">{{ person.display.age }}</span></div>
             </div>
           </div>
         </script>
         <script id="person-details.html" type="text/ng-template">
           <div class="person-details">
-            <div person-vitals="person" class="person main"></div>
+            <div class="person main">
+              <div person-vitals="person"></div>
+              <div class="{{ childClass(person) }} num-children">{{ numChildren(person.familyIds) }}</div>
+            </div>
             <div class="parents">
               <div ng-show="person.father.display" class="person parent father"><span class="title">Father</span>
                 <div person-vitals="person.father"></div>
+                <div class="{{ childClass(person.father) }} num-children">{{ numChildren(person.father.familyIds) }}</div>
               </div>
               <div ng-show="person.mother.display" class="person parent mother"><span class="title">Mother</span>
                 <div person-vitals="person.mother"></div>
+                <div class="{{ childClass(person.mother) }} num-children">{{ numChildren(person.mother.familyIds) }}</div>
               </div>
             </div>
             <div class="families">
+              <div ng-show="loading" class="loading-families"><i class="icon-refresh icon-spin"></i>Loading families {{ loading }}</div>
               <div ng-repeat="(spouseId, family) in person.families" class="family">
-                <div ng-repeat="person in family | filter:notNull" ng-show="person" class="person {{ $index === 0 ? 'spouse' : 'child' }} {{ person.display.gender === 'Female' ? 'female' : 'male' }}"><span class="title">{{ $index === 0 ? (person.display.gender === 'Female' ? 'Wife' : 'Husband') : (person.display.gender === 'Female' ? 'Daughter' : 'Son') }}</span>
+                <div ng-repeat="person in family | filter:notNull" ng-show="person" class="person {{ $index === 0 ? 'spouse' : 'child' }} {{ person.display.gender === 'Female' ? 'female' : 'male' }}"><span class="title">
+                    {{ $index === 0 ?
+                       (person.display.gender === 'Female' ? 'Wife' : 'Husband') :
+                       (person.display.gender === 'Female' ? 'Daughter' : 'Son') }}</span>
                   <div person-vitals="person"></div>
-                  <div ng-if="$index &gt; 0" class="{{ childClass(person.familyIds) }} num-children">{{ numChildren(person.familyIds) }}</div>
+                  <div class="{{ childClass(person) }} num-children">{{ numChildren(person.familyIds) }}</div>
                 </div>
               </div>
             </div>

@@ -3,15 +3,19 @@
     span(class="status {{ person.status }}")
     a(href="/person/{{ person.id }}")
       span.name {{ person.display.name }}
+      span.noname(ng-show="!person.display.name") No Name
       span.year {{ person.display.lifespan }}
+    i.icon-arrow-up.focus-me(ng-click="$parent.person = person")
     a(href="https://familysearch.org/tree/#view=ancestor&person={{ person.id }}", target="_blank")
       i.icon-external-link
   .data
     .birth(ng-show="person.display.birthDate || person.display.birthPlace")
       span.title Birth
       span.date {{ person.display.birthDate }}
-      span.place {{ person.display.birthPlace }}
+      span.place(title='{{ person.display.birthPlace }}', data-toggle="tooltip") {{ person.display.birthPlace | trunk:20 }}
     .death(ng-show="person.display.deathDate || person.display.deathPlace")
       span.title Death
       span.date {{ person.display.deathDate }}
-      span.place {{ person.display.deathPlace }}
+      span.place(title='{{ person.display.deathPlace }}', data-toggle="tooltip") {{ person.display.deathPlace | trunk:20 }}
+      span.title(ng-show='person.display.age') Age
+      span.age {{ person.display.age }}

@@ -13,6 +13,7 @@
     "notablemind/settings": "*",
     "notablemind/angular-settings": "*",
     "notablemind/loco": "*",
+    "mbostock/d3": "*",
     "familyfound/fan": "*",
     "component/dialog": "*",
     "familyfound/todo": "*",
