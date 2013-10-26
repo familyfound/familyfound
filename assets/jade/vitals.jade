@@ -1,11 +1,11 @@
 .person-vitals
   .head
-    span(class="status {{ person.status }}")
+    span.person-status(person-status='person')
     a(href="/person/{{ person.id }}")
       span.name {{ person.display.name }}
       span.noname(ng-show="!person.display.name") No Name
       span.year {{ person.display.lifespan }}
-    i.icon-arrow-up.focus-me(ng-click="$parent.person = person")
+    i.icon-arrow-up.focus-me(ng-click="focus(person)")
     a(href="https://familysearch.org/tree/#view=ancestor&person={{ person.id }}", target="_blank")
       i.icon-external-link
   .data

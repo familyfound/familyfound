@@ -20,16 +20,13 @@
         </div>
       </div>
     </div>
-    <div class="container">
+    <div class="main-container">
       <base href="/">
-      <nav data-ng-controller="NavController" class="nav nav-pills sub-nav">
-        <li ng-repeat="item in subNav" ng-class="{active: activeItem(item)}"><a href="{{item.path}}">{{ item.title }}</a></li>
-      </nav>
       <div id="pages" ng-view class="row-fluid"></div>
       <div class="templates">
         <script id="person-vitals.html" type="text/ng-template">
           <div class="person-vitals">
-            <div class="head"><span class="status {{ person.status }}"></span><a href="/person/{{ person.id }}"><span class="name">{{ person.display.name }}</span><span ng-show="!person.display.name" class="noname">No Name</span><span class="year">{{ person.display.lifespan }}</span></a><i ng-click="$parent.person = person" class="icon-arrow-up focus-me"></i><a href="https://familysearch.org/tree/#view=ancestor&amp;person={{ person.id }}" target="_blank"><i class="icon-external-link"></i></a></div>
+            <div class="head"><span person-status="person" class="person-status"></span><a href="/person/{{ person.id }}"><span class="name">{{ person.display.name }}</span><span ng-show="!person.display.name" class="noname">No Name</span><span class="year">{{ person.display.lifespan }}</span></a><i ng-click="focus(person)" class="icon-arrow-up focus-me"></i><a href="https://familysearch.org/tree/#view=ancestor&amp;person={{ person.id }}" target="_blank"><i class="icon-external-link"></i></a></div>
             <div class="data">
               <div ng-show="person.display.birthDate || person.display.birthPlace" class="birth"><span class="title">Birth</span><span class="date">{{ person.display.birthDate }}</span><span title="{{ person.display.birthPlace }}" data-toggle="tooltip" class="place">{{ person.display.birthPlace | trunk:20 }}</span></div>
               <div ng-show="person.display.deathDate || person.display.deathPlace" class="death"><span class="title">Death</span><span class="date">{{ person.display.deathDate }}</span><span title="{{ person.display.deathPlace }}" data-toggle="tooltip" class="place">{{ person.display.deathPlace | trunk:20 }}</span><span ng-show="person.display.age" class="title">Age</span><span class="age">{{ person.display.age }}</span></div>
@@ -39,27 +36,27 @@
         <script id="person-details.html" type="text/ng-template">
           <div class="person-details">
             <div class="person main">
-              <div person-vitals="person"></div>
+              <div person-vitals="person" data-focus="focus"></div>
               <div class="{{ childClass(person) }} num-children">{{ numChildren(person.familyIds) }}</div>
             </div>
             <div class="parents">
               <div ng-show="person.father.display" class="person parent father"><span class="title">Father</span>
-                <div person-vitals="person.father"></div>
+                <div person-vitals="person.father" data-focus="focus"></div>
                 <div class="{{ childClass(person.father) }} num-children">{{ numChildren(person.father.familyIds) }}</div>
               </div>
               <div ng-show="person.mother.display" class="person parent mother"><span class="title">Mother</span>
-                <div person-vitals="person.mother"></div>
+                <div person-vitals="person.mother" data-focus="focus"></div>
                 <div class="{{ childClass(person.mother) }} num-children">{{ numChildren(person.mother.familyIds) }}</div>
               </div>
             </div>
             <div class="families">
-              <div ng-show="loading" class="loading-families"><i class="icon-refresh icon-spin"></i>Loading families {{ loading }}</div>
+              <div ng-show="loading" class="loading-families"><i class="icon-refresh icon-spin"></i>Loading relatives {{ loading }}</div>
               <div ng-repeat="(spouseId, family) in person.families" class="family">
                 <div ng-repeat="person in family | filter:notNull" ng-show="person" class="person {{ $index === 0 ? 'spouse' : 'child' }} {{ person.display.gender === 'Female' ? 'female' : 'male' }}"><span class="title">
                     {{ $index === 0 ?
                        (person.display.gender === 'Female' ? 'Wife' : 'Husband') :
                        (person.display.gender === 'Female' ? 'Daughter' : 'Son') }}</span>
-                  <div person-vitals="person"></div>
+                  <div person-vitals="person" data-focus="focus"></div>
                   <div class="{{ childClass(person) }} num-children">{{ numChildren(person.familyIds) }}</div>
                 </div>
               </div>
@@ -84,16 +81,18 @@
                 <!-- a.btn.btn-primary(href="#", target="_blank", ng-class="{disabled: loadingPeople > 0}", ng-mousedown="downloadPhotos($event)") Download Photos Chart-->
               </div>
             </div>
-            <div class="right-side pull-right">
-              <div ng-show="rootPerson.line.length" class="history">
-                <h4>History</h4>
-                <div class="look-down">{{ rootPerson.line.length }}<i class="icon-arrow-down"></i></div>
-                <div data-breadcrumb="rootPerson.line" data-config="bcConfig"></div>
+            <div class="main-section">
+              <div data-fan="rootPerson" data-config="fanConfig" class="left-side tree"></div>
+              <div class="right-side">
+                <div ng-show="focusedPerson.line.length" class="history">
+                  <h4>History</h4>
+                  <div class="look-down">{{ focusedPerson.line.length }}<i class="icon-arrow-down"></i></div>
+                  <div data-breadcrumb="focusedPerson.line" data-config="bcConfig"></div>
+                </div>
+                <div ng-show="person" person-details="focusedPerson" class="person-details"></div>
               </div>
-              <div ng-show="person" person-details="focusedPerson" class="person-details"></div>
             </div>
-            <div data-fan="rootPerson" data-config="fanConfig" class="tree"></div>
-            <div id="photos-tree" data-fan="rootPerson" data-config="photosConfig"></div>
+            <!-- #photos-tree(data-fan="rootPerson", data-config='photosConfig')-->
             <div id="download-tree" data-fan="rootPerson" data-config="printConfig"></div>
           </div>
         </script>

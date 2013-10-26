@@ -7,58 +7,56 @@ block bodytitle
   span They are waiting.
 
 block container
-    base(href='/')
-    nav.nav.nav-pills.sub-nav(data-ng-controller='NavController')
-      li(ng-repeat='item in subNav', ng-class='{active: activeItem(item)}')
-        a(href='{{item.path}}') {{ item.title }}
-    #pages.row-fluid(ng-view)
-    .templates
-      script(id="person-vitals.html", type='text/ng-template')
-        include vitals.jade
-      script(id="person-details.html", type='text/ng-template')
-        include person.jade
-      script(id='todoView.html', type='text/ng-template')
-        h4 Your Todos
-        .loading(ng-show='loadingTodos') Loading your todos...
-        .todo(ng-repeat='todo in todos.owned', data-todo='todo', data-dashboard='true')
-          span more replaces
-        h4 Watched Todos
-        .todo(ng-repeat='todo in todos.watching', data-todo='todo', data-dashboard='true')
-          span should be replaced
-        // .alerts
-          h4 Alerts
-          .alert(ng-repeat='alert in alerts', data-alert='alert')
-      script(id='personView.html', type='text/ng-template')
-        .person-view
-          .top
-            span.loading-person(ng-hide="rootPerson.display.name")
-              i.icon-spin.icon-refresh
-              Loading Tree
-            span.person-name(ng-show="rootPerson.display.name") {{ rootPerson.display.name }} Tree
-            a(href='https://familysearch.org/tree/#view=ancestor&person={{rootPerson.id}}', target='_blank')
-              | View on FamilySearch.org
-            span.loading
-              | {{ ffapi.loaded }} / {{ ffapi.loading }}
-              i.icon-refresh.icon-spin.loading(ng-show="ffapi.loading > ffapi.loaded")
-            .btn.btn-warning(ng-click="clearCache()", data-toggle="tooltip", title="clear cached data")
-              i.icon-refresh
-            .pull-right
-              a.btn.btn-primary(href='#', target='_blank', ng-class="{disabled: loadingPeople > 0}", ng-click="downloadFan($event)") Download Fan Chart
-              // a.btn.btn-primary(href="#", target="_blank", ng-class="{disabled: loadingPeople > 0}", ng-mousedown="downloadPhotos($event)") Download Photos Chart
-          .right-side.pull-right
-            .history(ng-show="rootPerson.line.length")
+  base(href='/')
+  #pages.row-fluid(ng-view)
+  .templates
+    script(id="person-vitals.html", type='text/ng-template')
+      include vitals.jade
+    script(id="person-details.html", type='text/ng-template')
+      include person.jade
+    script(id='todoView.html', type='text/ng-template')
+      h4 Your Todos
+      .loading(ng-show='loadingTodos') Loading your todos...
+      .todo(ng-repeat='todo in todos.owned', data-todo='todo', data-dashboard='true')
+        span more replaces
+      h4 Watched Todos
+      .todo(ng-repeat='todo in todos.watching', data-todo='todo', data-dashboard='true')
+        span should be replaced
+      // .alerts
+        h4 Alerts
+        .alert(ng-repeat='alert in alerts', data-alert='alert')
+    script(id='personView.html', type='text/ng-template')
+      .person-view
+        .top
+          span.loading-person(ng-hide="rootPerson.display.name")
+            i.icon-spin.icon-refresh
+            Loading Tree
+          span.person-name(ng-show="rootPerson.display.name") {{ rootPerson.display.name }} Tree
+          a(href='https://familysearch.org/tree/#view=ancestor&person={{rootPerson.id}}', target='_blank')
+            | View on FamilySearch.org
+          span.loading
+            | {{ ffapi.loaded }} / {{ ffapi.loading }}
+            i.icon-refresh.icon-spin.loading(ng-show="ffapi.loading > ffapi.loaded")
+          .btn.btn-warning(ng-click="clearCache()", data-toggle="tooltip", title="clear cached data")
+            i.icon-refresh
+          .pull-right
+            a.btn.btn-primary(href='#', target='_blank', ng-class="{disabled: loadingPeople > 0}", ng-click="downloadFan($event)") Download Fan Chart
+            // a.btn.btn-primary(href="#", target="_blank", ng-class="{disabled: loadingPeople > 0}", ng-mousedown="downloadPhotos($event)") Download Photos Chart
+        .main-section
+          .left-side.tree(data-fan="rootPerson", data-config='fanConfig')
+          .right-side
+            .history(ng-show="focusedPerson.line.length")
               h4 History
               .look-down
-                {{ rootPerson.line.length }}
+                {{ focusedPerson.line.length }}
                 i.icon-arrow-down
-              div(data-breadcrumb="rootPerson.line", data-config="bcConfig")
+              div(data-breadcrumb="focusedPerson.line", data-config="bcConfig")
             .person-details(ng-show="person", person-details="focusedPerson")
-          .tree(data-fan="rootPerson", data-config='fanConfig')
-          #photos-tree(data-fan="rootPerson", data-config='photosConfig')
-          #download-tree(data-fan="rootPerson", data-config='printConfig')
-      script(id="settings.html", type="text/ng-template")
-        .settings-manager(data-settings-manager='familyfound').
-          You will see your settings in good time.
+        // #photos-tree(data-fan="rootPerson", data-config='photosConfig')
+        #download-tree(data-fan="rootPerson", data-config='printConfig')
+    script(id="settings.html", type="text/ng-template")
+      .settings-manager(data-settings-manager='familyfound').
+        You will see your settings in good time.
 
 append endjs
   script(src="/js/build.js")

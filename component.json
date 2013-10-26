@@ -19,7 +19,8 @@
     "familyfound/todo": "*",
     "familyfound/promise": "*",
     "familyfound/breadcrumb": "*",
-    "familyfound/svg-download": "*"
+    "familyfound/svg-download": "*",
+    "familyfound/person-status": "*"
   },
   "development": {},
   "license": "MIT",

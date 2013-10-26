@@ -250,6 +250,9 @@ var mainControllers = {
       ringWidth: 35,
       doubleWidth: false,
       indicators: true,
+      resize: true,
+      minHeight: 300,
+      families: false,
       tips: function (person) {
         var message = '<span class="name">' + person.display.name + '</span> ' +
                       '<span class="life">' + person.display.lifespan + '</span>';

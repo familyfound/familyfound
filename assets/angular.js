@@ -5,19 +5,24 @@ var routes = {}
   , promise = require('promise')
   , todo = require('todo')
   , breadcrumb = require('breadcrumb')
+  , personStatus = require('person-status')
   , oauth = require('./oauth');
 
-var app = module.exports = angular.module('familyfound', ['ngResource', 'settings', 'fan', 'todo', 'breadcrumb'])
+var app = module.exports = angular.module('familyfound', ['ngResource', 'settings', 'fan', 'todo', 'breadcrumb', 'person-status'])
   .config(['$routeProvider', '$locationProvider', function(route, location) {
     Object.keys(routes).forEach(function (path) {
       route.when(path, routes[path]);
     });
     route.otherwise({redirectTo: '/'});
     location.html5Mode(true);
-  }]).run(function($location) {
-    if (location.pathname !== '/')
+  }]).run(['ffapi', '$location', function(ffapi, $location) {
+    ffapi.onerror(function () {
+      window.location = window.location + ''
+    })
+    if (location.pathname !== '/') {
       $location.path(location.pathname);
-  });
+    }
+  }]);
 
 app.addRoute = function (path, tpl, ctrl) {
   routes[path] = {
@@ -31,7 +36,7 @@ require('angular-resource');
 app.factory('user', function() {
   return promise(oauth.check, function (err, data) {
     if (err) {
-      return console.error('Failed to get user');
+      return window.location = window.location + ''
     }
     console.log('Got user!', data);
   });
@@ -42,7 +47,8 @@ app.directive('personVitals', function () {
     replace: true,
     restrict: 'A',
     scope: {
-      person: '=personVitals'
+      person: '=personVitals',
+      focus: '=focus'
     },
     templateUrl: 'person-vitals.html'
   };
@@ -75,6 +81,9 @@ app.directive('personDetails', ['ffapi', function (ffapi) {
         if (num < 4) return 'few-children';
         return '';
       };
+      scope.focus = function (person) {
+        scope.person = person
+      }
       scope.loading = 0
       scope.numChildren = numChildren;
       scope.$watch('person', function (person) {
@@ -110,6 +119,7 @@ app.directive('personDetails', ['ffapi', function (ffapi) {
     }
   };
 }]);
+
 
 function numChildren(families) {
   var num = 0;

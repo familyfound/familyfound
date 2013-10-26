@@ -3,6 +3,46 @@ body {
   min-height: 500px;
 }
 
+@media (min-height: 500px) {
+  #pages > div {
+    position: absolute;
+    top: 50px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    min-height: 500px;
+    min-width: 700px;
+    display: flex;
+    overflow: hidden;
+  }
+
+  .person-view {
+    flex-direction: column;
+    
+    .top {
+    }
+
+    .main-section {
+      flex-grow: 1;
+      display: flex;
+
+      .left-side {
+        flex-grow: 1;
+      }
+
+      .right-side {
+        width: 400px;
+        overflow: auto;
+      }
+    }
+  }
+}
+@media (max-height: 499px) {
+  .tree {
+    height: 400px;
+  }
+}
+
 .right-side {
   min-width: 400px;
 }
@@ -296,34 +336,9 @@ body {
   display: none;
 }
 
-.tree {
-  float: left;
-  display: -webkit-box;
-  display:    -moz-box;
-  display:    flex-box;
-
-  .go-back {
-    display: -webkit-box;
-    display:    -moz-box;
-    display:    flex-box;
-    -webkit-box-align: center;
-       -moz-box-align: center;
-            box-align: center;
-    cursor: pointer;
-
-    &:hover {
-      background-color: #eee;
-    }
-
-    .mid {
-      font-size: 90px;
-      font-weight: bold;
-      margin-top: -15px;
-    }
-  }
-
-  .rootPerson {
-  }
+.tree svg {
+  display: block;
+  margin: 0 auto;
 }
 
 .rightPane {
