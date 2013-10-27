@@ -14,11 +14,12 @@ build/build.js: static/index.html $(stylus_files) $(javascript_files)
 	@component build --dev --use component-stylus-plugin
 
 local_build: node_modules components static/index.html $(stylus_files) $(javascript_files)
+	@./node_modules/.bin/component install --dev
 	@./node_modules/.bin/component build --dev --use component-stylus-plugin
 
 components: component.json
 	@rm -rf components
-	@./node_modules/.bin/component install
+	@./node_modules/.bin/component install --dev
 
 node_modules: package.json
 	@npm install
