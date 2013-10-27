@@ -15,16 +15,17 @@ block container
     script(id="person-details.html", type='text/ng-template')
       include person.jade
     script(id='todoView.html', type='text/ng-template')
-      h4 Your Todos
-      .loading(ng-show='loadingTodos') Loading your todos...
-      .todo(ng-repeat='todo in todos.owned', data-todo='todo', data-dashboard='true')
-        span more replaces
-      h4 Watched Todos
-      .todo(ng-repeat='todo in todos.watching', data-todo='todo', data-dashboard='true')
-        span should be replaced
-      // .alerts
-        h4 Alerts
-        .alert(ng-repeat='alert in alerts', data-alert='alert')
+      .todos-view
+        h4 Your Todos
+        .loading(ng-show='loadingTodos') Loading your todos...
+        .todo(ng-repeat='todo in todos.owned', data-todo='todo', data-dashboard='true')
+          span more replaces
+        h4 Watched Todos
+        .todo(ng-repeat='todo in todos.watching', data-todo='todo', data-dashboard='true')
+          span should be replaced
+        // .alerts
+          h4 Alerts
+          .alert(ng-repeat='alert in alerts', data-alert='alert')
     script(id='personView.html', type='text/ng-template')
       .person-view
         .top
