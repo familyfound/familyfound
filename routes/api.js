@@ -7,37 +7,45 @@ var config = require('../lib/config')
   , debug = require('debug')('familyfound:api')
   , fs = require('familysearch').single();
 
-function fscached(endpoint, data, token, done) {
+function killCache(endpoint, post, done) {
   var db = getDb()
-    , body = JSON.stringify(data)
+  db.collection('fs-endpoints').remove({
+    endpoint: endpoint,
+    post: post
+  }, done)
+}
+
+function fscached(endpoint, post, token, done) {
+  var db = getDb()
   function gotten(err, data, res) {
     if (err) return done(err, data)
     db.collection('fs-endpoints').update({
       endpoint: endpoint,
-      post: body
+      post: post
     }, {
       endpoint: endpoint,
-      post: body,
+      post: post,
       data: data,
       etag: res.header.etag,
       time: new Date()
     }, {upsert: true}, function () {
-      done(err, data)
+      done(err, data, res)
     })
   }
   
   db.collection('fs-endpoints').findOne({
     endpoint: endpoint,
-    post: body
+    post: post
   }, function (err, cached) {
     if (err) {
       console.error('Error getting cached')
-      return fs.get(endpoint, data, token, gotten)
+      return fs.get(endpoint, post, token, gotten)
     }
-    if (!cached) return fs.get(endpoint, data, token, gotten)
-    fs.get(endpoint, data, token, cached.etag, function (err, data, res) {
+    if (!cached) return fs.get(endpoint, post, token, gotten)
+    fs.get(endpoint, post, token, cached.etag, function (err, data, res) {
+      if (err) return done(err)
       if (res.status === 304) {
-        return done(null, cached.data)
+        return done(null, cached.data, res)
       }
       gotten(err, data, res)
     })
@@ -98,14 +106,40 @@ function parseRelations(data) {
   return person;
 }
 
+function getSources(req, res) {
+  if (!req.params.id) return res.send({error: 'no person id'})
+  fscached('person-source-references-template', {pid: req.params.id}, req.session.oauth.access_token, function (err, data, resp) {
+    if (err) {
+      console.log('error getting sources', err, resp && resp.header, resp && resp.text)
+      return res.send(401, {error: 'Not logged in'})
+    }
+    // console.log('sources for', req.params.id, resp.header, resp.text)
+    res.send(data.persons && data.persons[0].sources || [])
+  })
+}
+
 function getPersonRelations(req, res) {
-  if (!req.params.id) return {error: 'no person id'};
+  if (!req.params.id) return res.send({error: 'no person id'});
   fscached('person-with-relationships-query',
          {person: req.params.id},
          req.session.oauth.access_token,
-         function (err, data) {
+         function (err, data, resp) {
     if (err) {
+      console.error('error getting relations.', err)
       return res.send(401, {error: 'Not logged in'});
+    }
+    if (!data.persons) {
+      if (arguments[2] === true) {
+        throw new Error('Loop! Looks like youre request is wrong.', req.params.id)
+      }
+      console.error(req.params.id, data)
+      if (resp) console.error(resp.header, resp.status, resp)
+      console.error('Invalid relations data - probs from cache')
+      return killCache('person-with-relationships-query',
+         {person: req.params.id},
+         function (err, data, resp) {
+           return getPersonRelations(req, res, true)
+         })
     }
     var person = parseRelations(data);
     getPersonData(req.params.id, req.session.userId, (req.body && req.body.line) ? req.body.line : null, function (err, data) {
@@ -202,6 +236,7 @@ function setStatus(req, res) {
 
 exports.addRoutes = function (app) {
   app.get('/api/person/photo/:id', oauth.checkLogin, getPersonPhoto);
+  app.get('/api/person/sources/:id', oauth.checkLogin, getSources);
   app.get('/api/person/relations/:id', oauth.checkLogin, getPersonRelations);
   app.post('/api/person/relations/:id', oauth.checkLogin, getPersonRelations);
   app.get('/api/person/:id', oauth.checkLogin, getPerson);

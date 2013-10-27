@@ -18,7 +18,8 @@ var app = module.exports = angular.module('familyfound', ['ngResource', 'setting
     location.html5Mode(true);
   }]).run(['ffapi', '$location', function(ffapi, $location) {
     ffapi.onerror(function () {
-      window.location = window.location + ''
+      console.log('got errorz!')
+      // window.location = window.location + ''
     })
     if (location.pathname !== '/') {
       $location.path(location.pathname);
@@ -38,7 +39,7 @@ app.factory('user', function() {
   return promise(oauth.check, function (err, data) {
     if (err) {
       console.error('Error getting user:', err)
-      window.location = window.location + ''
+      // window.location = window.location + ''
       return
     }
     console.log('Got user!', data);

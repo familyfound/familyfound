@@ -20,7 +20,8 @@
     "familyfound/promise": "*",
     "familyfound/breadcrumb": "*",
     "familyfound/svg-download": "*",
-    "familyfound/person-status": "*"
+    "familyfound/person-status": "*",
+    "familyfound/statuses": "*"
   },
   "development": {},
   "license": "MIT",
@@ -28,6 +29,8 @@
   "scripts": [
     "assets/oauth.js",
     "assets/pages.js",
+    "assets/utils.js",
+    "assets/diagnostics.js",
     "assets/settings.js",
     "assets/angular.js",
     "assets/index.js"

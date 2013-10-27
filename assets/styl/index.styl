@@ -1,10 +1,13 @@
 
 body {
   min-height: 500px;
-  overflow: hidden;
 }
 
 @media (min-height: 500px) {
+  body {
+    overflow: hidden;
+  }
+  
   #pages > div {
     position: absolute;
     top: 50px;
@@ -287,6 +290,14 @@ body {
     font-size: 13px;
     color: white;
   }
+  .minor {
+    color: #faa;
+    font-weight: bold;
+  }
+  .major {
+    color: red;
+    font-weight: bold;
+  }
   .one-child {
     color: red;
     font-weight: bold;
@@ -323,12 +334,31 @@ body {
 
 .indicator {
   fill: transparent;
+  display: none;
+
+  &.shown {
+    display: block;
+    // stroke: black;
+  }
   
-  &.one-child {
+  // a problem is worse than an issue :)
+  &.bad-data {
+    fill: #5C4D12
+  }
+  &.poor-data {
+    fill: #AD994A;
+  }
+  &.probable-research {
     fill: red;
   }
-  &.few-children {
+  &.possible-research {
     fill: orange;
+  }
+  &.few-sources {
+    fill: #af7;
+  }
+  &.many-sources {
+    fill: #3a0;
   }
 }
 

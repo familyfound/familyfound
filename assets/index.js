@@ -10,7 +10,10 @@ var request = require('superagent')
   , svgDownload = require('svg-download')
   , d3 = require('d3')
   , fan = require('fan')
+  , statuses = require('statuses')
 
+  , utils = require('./utils')
+  , diags = require('./diagnostics')
   , defaultSettings = require('./settings')
   , app = require('./angular')
   , pages = require('./pages')
@@ -34,7 +37,7 @@ function toCamelCase(title) {
   return title[0].toLowerCase() + title.slice(1);
 }
 
-var loadPeople = function (get, base, scope, gens, root) {
+var loadPeople = function (get, base, scope, gens, gen) {
   if (gens <= 0) {
     base.hideParents = true;
     return null;
@@ -53,26 +56,26 @@ var loadPeople = function (get, base, scope, gens, root) {
   }
     , childLine = base.line.concat([histItem])
   if (base.fatherId) {
-    get(base.fatherId, childLine, function (data, cached) {
+    get(base.fatherId, childLine, gen + 1, function (data, cached) {
       base.father = data;
       data.line = [histItem]
       data.line = base.line.concat(data.line)
       setHistory(data.id, data.line);
-      loadPeople(get, base.father, scope, gens - 1);
+      loadPeople(get, base.father, scope, gens - 1, gen + 1);
       if (!cached) scope.$digest();
     });
   }
   if (base.motherId) {
-    get(base.motherId, childLine, function (data, cached) {
+    get(base.motherId, childLine, gen + 1, function (data, cached) {
       base.mother = data;
       data.line = [histItem]
       data.line = base.line.concat(data.line)
       setHistory(data.id, data.line);
-      loadPeople(get, base.mother, scope, gens - 1);
+      loadPeople(get, base.mother, scope, gens - 1, gen + 1);
       if (!cached) scope.$digest();
     });
   }
-  if (root && 'object' === typeof base.familyIds) {
+  if (gen === 0 && 'object' === typeof base.familyIds) {
     Object.keys(base.familyIds).forEach(function (spouseId) {
       if (!base.families[spouseId]) base.families[spouseId] = [null];
       function got(i, data, cached) {
@@ -83,11 +86,29 @@ var loadPeople = function (get, base, scope, gens, root) {
       }
       for (var i=0; i<base.familyIds[spouseId].length; i++) {
         base.families[spouseId].push(null);
-        get(base.familyIds[spouseId][i], childLine, got.bind(null, i));
+        get(base.familyIds[spouseId][i], childLine, gen + 1, got.bind(null, i));
       }
     });
   }
 };
+
+function sourcery(node, sources) {
+  var ind = node.indicators[0]
+  ind.classed('many-sources', sources && sources.length > 2)
+    .classed('few-sources', sources && sources.length > 0 && sources.length < 3)
+    .classed('shown', sources && sources.length > 0)
+}
+
+function indicate(node, person) {
+  sourcery(node, node.gen < 5 && person.sources)
+  person.diagnostics = diags.diagnose(person)
+  if (person.status === 'complete') {
+    node.indicators[1].classed('shown', false)
+    node.indicators[2].classed('shown', false)
+    return
+  }
+  diags.classify(node.indicators[1], node.indicators[2], person.diagnostics)
+}
 
 app.controller('NavController', function ($scope, $location) {
   $scope.activeItem = function (item) {
@@ -213,8 +234,14 @@ var mainControllers = {
     }
 
     $scope.clearCache = function () {
-      ffapi.clear();
-      location.reload();
+      if ($scope.rootPerson.id === $scope.user.personId) {
+        return ffapi.clear(function () {
+          location.reload()
+        })
+      }
+      ffapi.clearFrom($scope.rootPerson.id, function () {
+        location.reload();
+      })
     };
 
     $scope.focusedPerson = $scope.rootPerson;
@@ -243,6 +270,33 @@ var mainControllers = {
         return false
       }
     }
+    function onPerson(el, person, node) {
+      el.on('mousedown', focus(person, el))
+      el.on('contextmenu', function () {d3.event.preventDefault()});
+      if (person.display && (person.display.lifespan && person.display.lifespan.match(/Living/i))) return
+      var kids = 0;
+      for (var spouse in person.familyIds) {
+        // list starts w/ the id of the spouse
+        kids += person.familyIds[spouse].length - 1;
+      }
+      indicate(node, person)
+    }
+    var NODES = {}
+    $scope.$watch('rootPerson', function () {
+      NODES = {}
+    })
+
+    function stratify(node, status) {
+      statuses.forEach(function (status) {
+        node.el.classed(status, false)
+      })
+      node.el.classed(status, true)
+    }
+    ffapi.on('status:changed', function (pid, status) {
+      if (!NODES[pid]) return
+      stratify(NODES[pid], status)
+    })
+    $scope.user
     $scope.fanConfig = {
       gens: settings.get('main.displayGens'),
       links: false,
@@ -251,82 +305,23 @@ var mainControllers = {
       center: {x: 325, y: 350},
       ringWidth: 35,
       doubleWidth: false,
-      indicators: true,
+      // sources, children, data cleanup
+      indicators: [true, true, true],
       resize: true,
       minHeight: 300,
       families: false,
-      tips: function (person) {
-        var message = '<span class="name">' + person.display.name + '</span> ' +
-                      '<span class="life">' + person.display.lifespan + '</span>';
-        if (person.display.birthPlace &&
-            person.display.deathPlace &&
-            person.display.birthPlace.toLowerCase() === person.display.deathPlace.toLowerCase()) {
-          message += '<br><span class="born-died"><span class="title">Born and Died:</span> ' +
-                     person.display.birthPlace + '</span>';
-        } else {
-          if (person.display.birthPlace) {
-            message += '<br><span class="born"><span class="title">Born:</span> ' +
-                       person.display.birthPlace + '</span>';
-          }
-          if (person.display.deathPlace) {
-            message += '<br><span class="died"><span class="title">Died:</span> ' +
-                       person.display.deathPlace + '</span>';
-          }
-        }
-        var kids = 0;
-        for (var spouse in person.familyIds) {
-          // list starts w/ the id of the spouse
-          kids += person.familyIds[spouse].length - 1;
-        }
-        var kidsClass = kids === 1 ? 'one-child' : (kids < 4 ? 'few-children' : '')
-        message += '<br><span class="children ' + kidsClass + '">' +
-                   kids + ' ' + (kids === 1 ? 'child' : 'children') + '</span>';
-        return message;
-      },
-      onSpouse: function (el, person) {
-        el.on('click', function () {
-          navigate(person, 'side');
-        });
-        el.on('mousedown', focus(person, el))
-        el.on('contextmenu', function () {d3.event.preventDefault()});
-      },
-      onChild: function (el, person) {
-        el.on('click', function () {
-          navigate(person, 'down');
-        });
-        el.on('mousedown', focus(person, el))
-        el.on('contextmenu', function () {d3.event.preventDefault()});
-      },
+      tips: utils.tip,
       onParent: function (el, person, node) {
+        NODES[person.id] = node
         el.on('click', function () {
           navigate(person, 'up');
         });
-        el.on('mousedown', focus(person, el))
-        el.on('contextmenu', function () {d3.event.preventDefault()});
-        if (person.display.lifespan && person.display.lifespan.match(/Living/i)) return
-        var kids = 0;
-        for (var spouse in person.familyIds) {
-          // list starts w/ the id of the spouse
-          kids += person.familyIds[spouse].length - 1;
-        }
-        var kidsClass = kids === 1 ? 'one-child' : (kids < 4 ? 'few-children' : '');
-        if (kidsClass) {
-          node.indicators[0].classed(kidsClass, true);
-        }
+        onPerson(el, person, node)
       },
       onRoot: function (el, person, node) {
-        if (person.display.lifespan && person.display.lifespan.match(/Living/i)) return
-        var kids = 0;
-        for (var spouse in person.familyIds) {
-          // list starts w/ the id of the spouse
-          kids += person.familyIds[spouse].length - 1;
-        }
-        el.on('mousedown', focus(person, el))
-        el.on('contextmenu', function () {d3.event.preventDefault()});
-        var kidsClass = kids === 1 ? 'one-child' : (kids < 4 ? 'few-children' : '');
-        if (kidsClass) {
-          node.indicators[0].classed(kidsClass, true);
-        }
+        NODES[person.id] = node
+        if (!person.display || (person.display.lifespan && person.display.lifespan.match(/Living/i))) return
+        onPerson(el, person, node)
       }
     };
     $scope.downloadFan = function ($event) {
@@ -339,6 +334,7 @@ var mainControllers = {
     };
     $scope.loadingPeople = 1;
     user(function(user, usercached) {
+      $scope.user = user
       var personId = $route.current.params.id || user.personId;
       // console.log('getting for', personId);
       // $scope.history = getHistory(personId);
@@ -354,12 +350,14 @@ var mainControllers = {
       function getSources(pid, person) {
         // $scope.loadingPeople++;
         ffapi.sources(pid, function (sources, cached) {
-          person.sources = sources.count;
+          person.sources = sources;
+          if (NODES[pid]) sourcery(NODES[pid], sources)
+
           // $scope.loadingPeople--;
           if (!cached) $scope.$digest();
         });
       }
-      var get = function (pid, line, next) {
+      var get = function (pid, line, gen, next) {
         if (arguments.length === 2) {
           next = line
           line = null
@@ -368,7 +366,7 @@ var mainControllers = {
         ffapi.relation(pid, line, function (person, cached) {
           $scope.loadingPeople--;
           // getPhoto(pid, person);
-          getSources(pid, person);
+          if (gen < 5) getSources(pid, person);
           next(person, cached);
         });
       };
@@ -376,7 +374,7 @@ var mainControllers = {
         $scope.focusedPerson = $scope.rootPerson = person;
         $scope.loadingPeople--;
         // getPhoto(personId, person);
-        loadPeople(get, person, $scope, settings.get('main.displayGens')  - 1, true);
+        loadPeople(get, person, $scope, settings.get('main.displayGens')  - 1, 0);
         if (!usercached || !cached) $scope.$digest();
       });
     });
