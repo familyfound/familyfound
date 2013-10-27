@@ -3,7 +3,7 @@ module.exports = {
   main: {
     _group: true,
     displayGens: {
-      value: 9,
+      value: 7,
       range: {
         min: 3,
         max: 9
