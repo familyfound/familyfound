@@ -1,1 +1,7 @@
-{"laxcomma":true}
+{
+  "laxcomma":true,
+  "-W033": false,
+  "undef": true,
+  "browser": true,
+  "node": true
+}

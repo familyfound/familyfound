@@ -6,6 +6,7 @@ var routes = {}
   , todo = require('todo')
   , breadcrumb = require('breadcrumb')
   , personStatus = require('person-status')
+  , angular = require('angularjs')
   , oauth = require('./oauth');
 
 var app = module.exports = angular.module('familyfound', ['ngResource', 'settings', 'fan', 'todo', 'breadcrumb', 'person-status'])
@@ -36,7 +37,9 @@ require('angular-resource');
 app.factory('user', function() {
   return promise(oauth.check, function (err, data) {
     if (err) {
-      return window.location = window.location + ''
+      console.error('Error getting user:', err)
+      window.location = window.location + ''
+      return
     }
     console.log('Got user!', data);
   });

@@ -50,9 +50,10 @@ var loadPeople = function (get, base, scope, gens, root) {
     // add in date range here?
     name: base.display.name + ' (' + base.display.lifespan + ')',
     direction: null
-  };
+  }
+    , childLine = base.line.concat([histItem])
   if (base.fatherId) {
-    get(base.fatherId, function (data, cached) {
+    get(base.fatherId, childLine, function (data, cached) {
       base.father = data;
       data.line = [histItem]
       data.line = base.line.concat(data.line)
@@ -62,7 +63,7 @@ var loadPeople = function (get, base, scope, gens, root) {
     });
   }
   if (base.motherId) {
-    get(base.motherId, function (data, cached) {
+    get(base.motherId, childLine, function (data, cached) {
       base.mother = data;
       data.line = [histItem]
       data.line = base.line.concat(data.line)
@@ -74,14 +75,15 @@ var loadPeople = function (get, base, scope, gens, root) {
   if (root && 'object' === typeof base.familyIds) {
     Object.keys(base.familyIds).forEach(function (spouseId) {
       if (!base.families[spouseId]) base.families[spouseId] = [null];
+      function got(i, data, cached) {
+        base.families[spouseId][i] = data;
+        data.line = [histItem]
+        data.line = base.line.concat(data.line)
+        if (!cached) scope.$digest();
+      }
       for (var i=0; i<base.familyIds[spouseId].length; i++) {
         base.families[spouseId].push(null);
-        get(base.familyIds[spouseId][i], function (i, data, cached) {
-          base.families[spouseId][i] = data;
-          data.line = [histItem]
-          data.line = base.line.concat(data.line)
-          if (!cached) scope.$digest();
-        }.bind(null, i));
+        get(base.familyIds[spouseId][i], childLine, got.bind(null, i));
       }
     });
   }
@@ -357,9 +359,13 @@ var mainControllers = {
           if (!cached) $scope.$digest();
         });
       }
-      var get = function (pid, next) {
+      var get = function (pid, line, next) {
+        if (arguments.length === 2) {
+          next = line
+          line = null
+        }
         $scope.loadingPeople++;
-        ffapi.relation(pid, function (person, cached) {
+        ffapi.relation(pid, line, function (person, cached) {
           $scope.loadingPeople--;
           // getPhoto(pid, person);
           getSources(pid, person);
