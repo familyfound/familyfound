@@ -7,7 +7,7 @@ default: build/build.js
 	@:
 
 heroku: local_build
-	@DEBUG=familyfound:*,familysearch:* node app.js
+	node app.js
 
 build/build.js: static/index.html $(stylus_files) $(javascript_files)
 	@echo "Component build"
