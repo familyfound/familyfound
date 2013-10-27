@@ -154,6 +154,10 @@ function getPersonRelations(req, res) {
 }
 
 function getPersonData(person, user, line, next) {
+  if (arguments.length === 3) {
+    next = line
+    line = null
+  }
   var db = getDb();
   db.collection('status').findOne({
     person: person,
