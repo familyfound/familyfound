@@ -39,4 +39,4 @@ lint:
 clean:
 	@rm -rf node_modules components
 
-.PHONY: test clean serve heroku local_build lint
+.PHONY: test clean serve heroku local_build lint default
