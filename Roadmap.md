@@ -1,0 +1,2 @@
+- use sockets to request people
+- journal feature
