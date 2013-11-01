@@ -296,7 +296,6 @@ var mainControllers = {
       if (!NODES[pid]) return
       stratify(NODES[pid], status)
     })
-    $scope.user
     $scope.fanConfig = {
       gens: settings.get('main.displayGens'),
       links: false,
