@@ -1,11 +1,28 @@
 
 var config = require('../lib/config')
   , request = require('superagent')
+  , util = require('util')
 
   , oauth = require('./oauth')
   , getDb = require('../lib/db')
   , debug = require('debug')('familyfound:api')
   , fs = require('familysearch').single();
+
+function HError(code, message) {
+  Error.call(this, message)
+  this.code = code
+}
+
+util.inherits(HError, Error)
+
+module.exports = {
+  getPersonRelations: getPersonRelations,
+  getPersonPhoto: getPersonPhoto,
+  getPersonData: getPersonData,
+  setStatus: setStatus,
+  addRoutes: addRoutes,
+  checkLogin: oauth.checkLogin
+}
 
 function killCache(endpoint, post, done) {
   var db = getDb()
@@ -106,51 +123,51 @@ function parseRelations(data) {
   return person;
 }
 
-function getSources(req, res) {
-  if (!req.params.id) return res.send({error: 'no person id'})
-  fscached('person-source-references-template', {pid: req.params.id}, req.session.oauth.access_token, function (err, data, resp) {
+function getSources(id, access_token, done) {
+  if (!id) return done(new HError(400, 'No person id'))
+  fscached('person-source-references-template', {pid: id}, access_token, function (err, data, resp) {
     if (err) {
       console.log('error getting sources', err, resp && resp.header, resp && resp.text)
-      return res.send(401, {error: 'Not logged in'})
+      return done(new HError(401, 'Not logged in'))
     }
     // console.log('sources for', req.params.id, resp.header, resp.text)
-    res.send(data.persons && data.persons[0].sources || [])
+    done(null, data.persons && data.persons[0].sources || [])
   })
 }
 
-function getPersonRelations(req, res) {
-  if (!req.params.id) return res.send({error: 'no person id'});
+function getPersonRelations(id, access_token, userId, line, done) {
+  if (!id) return done(new HError(400, 'no person id'))
   fscached('person-with-relationships-query',
-         {person: req.params.id},
-         req.session.oauth.access_token,
+         {person: id},
+         access_token,
          function (err, data, resp) {
     if (err) {
       console.error('error getting relations.', err)
-      return res.send(401, {error: 'Not logged in'});
+      return done(new HError(401, 'Not logged in'))
     }
     if (!data.persons) {
-      if (arguments[2] === true) {
-        throw new Error('Loop! Looks like youre request is wrong.', req.params.id)
+      if (arguments[5] === true) {
+        throw new HError(400, 'Loop! Looks like youre request is wrong.' + id)
       }
-      console.error(req.params.id, data)
+      console.error(id, data)
       if (resp) console.error(resp.header, resp.status, resp)
       console.error('Invalid relations data - probs from cache')
       return killCache('person-with-relationships-query',
-         {person: req.params.id},
+         {person: id},
          function (err, data, resp) {
-           return getPersonRelations(req, res, true)
+           return getPersonRelations(id, access_token, userId, line, done, true)
          })
     }
     var person = parseRelations(data);
-    getPersonData(req.params.id, req.session.userId, (req.body && req.body.line) ? req.body.line : null, function (err, data) {
-      if (err) return res.send({error: 'Failed to get person data'});
+    getPersonData(id, userId, line, function (err, data) {
+      if (err) return done(new HError(500, 'Failed to get person data'))
       person.status = data.status;
       person.todos = data.todos;
       person.line = data.line;
       person.id = data.id;
-      return res.send(person);
-    });
-  });
+      done(null, person);
+    })
+  })
 }
 
 function getPersonData(person, user, line, next) {
@@ -204,46 +221,67 @@ function getPersonData(person, user, line, next) {
   });
 }
 
-function getPerson(req, res) {
-  getPersonData(req.params.id, req.session.userId, function (err, data) {
-    if (err) return res.send({error: 'Failed to get person', details: err});
-    res.send(data);
-  });
-}
-
-function getPersonPhoto(req, res) {
-  request.get('https://familysearch.org/artifactmanager/persons/personsByTreePersonId/' + req.params.id + '/summary')
-    .set('Authorization', 'Bearer ' + req.session.oauth.access_token)
+function getPersonPhoto(id, access_token, done) {
+  request.get('https://familysearch.org/artifactmanager/persons/personsByTreePersonId/' + id + '/summary')
+    .set('Authorization', 'Bearer ' + access_token)
     .end(function (err, response) {
-      if (err) return res.send({error: 'Failed to get photo', details: err});
-      res.send(response.body);
-    });
+      if (err) return done(err)
+      done(null, response.body)
+    })
 }
 
-function setStatus(req, res) {
+function setStatus(id, userId, status, done) {
   var db = getDb();
   db.collection('status').update({
-    person: req.body.id,
-    user: req.session.userId
+    person: id,
+    user: userId
   }, {
     $set: {
-      person: req.body.id,
-      user: req.session.userId,
-      status: req.body.status,
+      person: id,
+      user: userId,
+      status: status,
       modified: new Date()
     }
   }, {upsert: true}, function (err, doc) {
-    if (err) return res.send({error: 'failed to save'});
-    res.send({success: true});
+    done(err)
   });
 }
 
-exports.addRoutes = function (app) {
-  app.get('/api/person/photo/:id', oauth.checkLogin, getPersonPhoto);
-  app.get('/api/person/sources/:id', oauth.checkLogin, getSources);
-  app.get('/api/person/relations/:id', oauth.checkLogin, getPersonRelations);
-  app.post('/api/person/relations/:id', oauth.checkLogin, getPersonRelations);
-  app.get('/api/person/:id', oauth.checkLogin, getPerson);
-  app.post('/api/person/status', oauth.checkLogin, setStatus);
+function addRoutes(app) {
+  app.get('/api/person/photo/:id', oauth.checkLogin, function (req, res) {
+    getPersonPhoto(req.params.id, req.session.oauth.access_token, function (err, data) {
+      if (err) return res.send(err.code || 500, err.message)
+      res.send(data)
+    })
+  });
+  app.post('/api/person/status', oauth.checkLogin, function (req, res) {
+    setStatus(req.body.id, req.session.userId, req.body.status, function (err) {
+      if (err) return res.send(err.code || 500, err.message)
+      res.send(204)
+    })
+  });
+  app.get('/api/person/:id', oauth.checkLogin, function (req, res) {
+    getPersonData(req.params.id, req.session.userId, function (err, data) {
+      if (err) return res.send(err.code || 500, err.message)
+      res.send(data);
+    });
+  });
+  app.get('/api/person/sources/:id', oauth.checkLogin, function (req, res) {
+    getSources(req.params.id, req.session.oauth.access_token, function (err, data) {
+      if (err) return res.send(err.code || 500, err.message)
+      res.send(data)
+    })
+  });
+  app.get('/api/person/relations/:id', oauth.checkLogin, function (req, res) {
+    getPersonRelations(req.params.id, req.session.oauth.access_token, req.session.userId, null, function (err, person) {
+      if (err) return res.send(err.code || 500, err.message)
+      res.send(person)
+    })
+  });
+  app.post('/api/person/relations/:id', oauth.checkLogin, function (req, res) {
+    getPersonRelations(req.params.id, req.session.oauth.access_token, req.session.userId, req.body.line, function (err, person) {
+      if (err) return res.send(err.code || 500, err.message)
+      res.send(person)
+    })
+  });
 };
-exports.checkLogin = oauth.checkLogin;

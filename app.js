@@ -4,16 +4,25 @@ require('js-yaml');
 var express = require('express')
   , http = require('http')
   , app = express()
-  , server = http.createServer(app)
   , path = require('path')
   , fs = require('fs')
+  , server = http.createServer(app)
+
+  , connect = require('connect')
+  , SessionSockets = require('session.socket.io')
 
   , db = require('./lib/db')
   , config = require('./lib/config')
+
+  , api = require('./routes/api')
+  , sock = require('./routes/sock')
   , oauth = require('./routes/oauth')
   , todos = require('./routes/todos')
   , alerts = require('./routes/alerts')
-  , api = require('./routes/api');
+
+  , cookieParser = express.cookieParser(config.SECRET)
+  , sessionStore = new connect.middleware.session.MemoryStore()
+  , sessionSockets = new SessionSockets(io, sessionStore, cookieParser);
 
 // all environments
 app.set('port', process.env.PORT || config.PORT || 3000);
@@ -23,9 +32,11 @@ app.use(express.favicon());
 // app.use(express.logger('dev'));
 app.use(express.bodyParser());
 app.use(express.methodOverride());
-app.use(express.cookieParser(config.SECRET));
-app.use(express.session());
+app.use(cookieParser);
+app.use(express.session({store: sessionStore}));
 app.use(app.router);
+
+var io = sock(sessionSockets)
 
 // most things go through here
 app.use(express.static(path.join(__dirname, 'static')));
