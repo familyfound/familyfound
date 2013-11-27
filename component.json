@@ -33,7 +33,8 @@
     "assets/diagnostics.js",
     "assets/settings.js",
     "assets/angular.js",
-    "assets/index.js"
+    "assets/index.js",
+    "assets/controllers/related.js"
   ],
   "styles": [
     "assets/styl/index.styl"

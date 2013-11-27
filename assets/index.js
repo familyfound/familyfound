@@ -151,6 +151,8 @@ var helpText = "<b>Inactive:</b> Research has not yet begun.<br>" +
 
 var mainControllers = {
 
+  RelatedView: require('./controllers/related'),
+
   TodoView: function ($scope, $route, $location, user, ffapi) {
     $scope.removeTodo = function (todo) {
       var i = $scope.todos.owned.indexOf(todo);

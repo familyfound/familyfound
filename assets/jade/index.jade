@@ -14,13 +14,28 @@ block container
       include vitals.jade
     script(id="person-details.html", type='text/ng-template')
       include person.jade
+    script(id='relatedView.html', type='text/ng-template')
+      .related-view
+        h4 How am I related?
+        p.
+          Enter a person's ID number below to find out how you are related to
+          them. If you are more than 10th cousins, we give up :) It would take
+          too long to surch further. This is primarily for remembering how you
+          are connected to someone you know is your ancestor.
+        label
+          | Person's ID
+          input(type='text', placeholder='This person must be deceased', ng-model='relatedPersonId')
+        button.btn.btn-primary(ng-click='findRelationship()') Find Relationship
+        .loading-indicator(ng-show='findingRelationship') {{ numSearched }} people searched
     script(id='todoView.html', type='text/ng-template')
       .todos-view
-        h4 Your Todos
-        .loading(ng-show='loadingTodos') Loading your todos...
+        h4 Your To-do Items
+        .loading(ng-show='loadingTodos') Loading your to-do items...
         .todo(ng-repeat='todo in todos.owned', data-todo='todo', data-dashboard='true')
           span more replaces
-        h4 Watched Todos
+        .no-todos(ng-hide="todos.owned.length")
+          p You don't have any saved to-do items! Use the chrome extension to keep track of things you want to do.
+        h4(ng-show="todos.watching.length") Watched To-do Items
         .todo(ng-repeat='todo in todos.watching', data-todo='todo', data-dashboard='true')
           span should be replaced
         // .alerts
@@ -33,15 +48,14 @@ block container
             i.icon-spin.icon-refresh
             Loading Tree
           span.person-name(ng-show="rootPerson.display.name") {{ rootPerson.display.name }} Tree
-          a(href='https://familysearch.org/tree/#view=ancestor&person={{rootPerson.id}}', target='_blank')
-            | View on FamilySearch.org
           span.loading
             | {{ ffapi.loaded }} / {{ ffapi.loading }}
             i.icon-refresh.icon-spin.loading(ng-show="ffapi.loading > ffapi.loaded")
           .btn.btn-warning(ng-click="clearCache()", data-toggle="tooltip", title="clear cached data")
             i.icon-refresh
           .pull-right
-            a.btn.btn-primary(href='#', target='_blank', ng-class="{disabled: loadingPeople > 0}", ng-click="downloadFan($event)") Download Fan Chart
+            a.btn.btn-primary(href='#', target='_blank', ng-class="{disabled: loadingPeople > 0}", ng-click="downloadFan($event)")
+              | {{ loadingPeople > 0 ? "Loading Fan Chart" : "Download Fan Chart" }}
             // a.btn.btn-primary(href="#", target="_blank", ng-class="{disabled: loadingPeople > 0}", ng-mousedown="downloadPhotos($event)") Download Photos Chart
         .main-section
           .left-side.tree(data-fan="rootPerson", data-config='fanConfig')
@@ -52,6 +66,8 @@ block container
                 {{ focusedPerson.line.length }}
                 i.icon-arrow-down
               div(data-breadcrumb="focusedPerson.line", data-config="bcConfig")
+            a(href='https://familysearch.org/tree/#view=ancestor&person={{focusedPerson.id}}', target='_blank')
+              | View on FamilySearch.org
             .person-details(ng-show="person", person-details="focusedPerson")
         // #photos-tree(data-fan="rootPerson", data-config='photosConfig')
         #download-tree(data-fan="rootPerson", data-config='printConfig')

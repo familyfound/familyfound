@@ -7,12 +7,15 @@ var express = require('express')
   , server = http.createServer(app)
   , path = require('path')
   , fs = require('fs')
+  , io = require('socket.io').listen(server)
 
   , db = require('./lib/db')
   , config = require('./lib/config')
+
+  , sockets = require('./routes/sockets')
+  , alerts = require('./routes/alerts')
   , oauth = require('./routes/oauth')
   , todos = require('./routes/todos')
-  , alerts = require('./routes/alerts')
   , api = require('./routes/api');
 
 // all environments
@@ -39,6 +42,7 @@ api.addRoutes(app);
 oauth.addRoutes(app);
 alerts.addRoutes(app);
 todos.addRoutes(app);
+sockets.attach(io)
 
 var index = function(req, res) {
   res.send(fs.readFileSync(path.join(__dirname, 'static', 'index.html')).toString('utf8'));

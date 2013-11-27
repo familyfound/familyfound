@@ -14,7 +14,7 @@ var app = module.exports = angular.module('familyfound', ['ngResource', 'setting
     Object.keys(routes).forEach(function (path) {
       route.when(path, routes[path]);
     });
-    route.otherwise({redirectTo: '/'});
+    route.otherwise({redirectTo: '/person/'});
     location.html5Mode(true);
   }]).run(['ffapi', '$location', function(ffapi, $location) {
     ffapi.onerror(function () {
@@ -39,12 +39,17 @@ app.factory('user', function() {
   return promise(oauth.check, function (err, data) {
     if (err) {
       console.error('Error getting user:', err)
+      alert('Failed to login with familysearch. Please reload the page');
       // window.location = window.location + ''
       return
     }
     console.log('Got user!', data);
   });
 });
+
+app.factory('io', function () {
+  return io.connect('http://localhost')
+})
 
 app.directive('personVitals', function () {
   return {

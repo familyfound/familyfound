@@ -7,6 +7,22 @@ var config = require('../lib/config')
   , debug = require('debug')('familyfound:api')
   , fs = require('familysearch').single();
 
+module.exports = {
+  fscached: fscached,
+  killCache: killCache,
+  checkLogin: oauth.checkLogin,
+  addRoutes: addRoutes
+}
+
+function addRoutes(app) {
+  app.get('/api/person/photo/:id', oauth.checkLogin, getPersonPhoto);
+  app.get('/api/person/sources/:id', oauth.checkLogin, getSources);
+  app.get('/api/person/relations/:id', oauth.checkLogin, getPersonRelations);
+  app.post('/api/person/relations/:id', oauth.checkLogin, getPersonRelations);
+  app.get('/api/person/:id', oauth.checkLogin, getPerson);
+  app.post('/api/person/status', oauth.checkLogin, setStatus);
+}
+
 function killCache(endpoint, post, done) {
   var db = getDb()
   db.collection('fs-endpoints').remove({
@@ -238,12 +254,3 @@ function setStatus(req, res) {
   });
 }
 
-exports.addRoutes = function (app) {
-  app.get('/api/person/photo/:id', oauth.checkLogin, getPersonPhoto);
-  app.get('/api/person/sources/:id', oauth.checkLogin, getSources);
-  app.get('/api/person/relations/:id', oauth.checkLogin, getPersonRelations);
-  app.post('/api/person/relations/:id', oauth.checkLogin, getPersonRelations);
-  app.get('/api/person/:id', oauth.checkLogin, getPerson);
-  app.post('/api/person/status', oauth.checkLogin, setStatus);
-};
-exports.checkLogin = oauth.checkLogin;

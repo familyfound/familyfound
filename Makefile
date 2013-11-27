@@ -31,7 +31,10 @@ static/index.html: $(wildcard assets/jade/*.jade) assets/pages.js
 	@echo "Jade"
 	@./build.js
 
-test: lint
+test: lint test-only
+
+test-only:
+	@mocha -R spec test/server
 
 lint:
 	./node_modules/.bin/jshint lib routes *.js assets --verbose
