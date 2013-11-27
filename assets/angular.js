@@ -48,7 +48,7 @@ app.factory('user', function() {
 });
 
 app.factory('io', function () {
-  return io.connect('http://' + window.location.hostname)
+  return io.connect(window.location.protocol + '//' + window.location.hostname)
 })
 
 app.directive('personVitals', function () {
