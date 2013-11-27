@@ -23,6 +23,60 @@ body {
   #pages > .related-view {
     display: block;
     padding: 50px;
+    overflow: auto;
+
+    .from-me {
+      margin-right: 5px;
+    }
+    .to-them {
+      margin-left: 5px;
+    }
+
+    .relationship-line {
+      .person {
+        margin: 0 auto 15px;
+        text-align: center;
+        max-width: 400px;
+        padding: 20px;
+        border-radius: 20px;
+
+        &.Female {
+          background-color: #FFF0F0
+        }
+        
+        &.Male {
+          background-color: aliceblue
+        }
+
+
+        .head {
+          a {
+            color: black;
+          }
+          .name {
+            font-size: 16px;
+            font-weight: bold;
+          }
+          .lifes {
+            margin-left: 20px;
+            font-style: italic;
+          }
+        }
+        .date {
+          font-size: 80%
+        }
+        .place {
+          margin-left: 10px;
+        }
+      }
+      .trees {
+        display: flex
+
+        .from-me, .to-them {
+          flex: 1
+        }
+      }
+    }
   }
 
   .person-view {
@@ -276,6 +330,12 @@ body {
 }
 
 .person-view {
+
+  .view-on-fs {
+    display: block;
+    margin-top: 10px;
+    margin-left: 30px;
+  }
   .top {
     margin-bottom: 10px;
 

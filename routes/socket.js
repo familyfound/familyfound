@@ -2,6 +2,7 @@
 var config = require('../lib/config')
   , getDb = require('../lib/db')
   , api = require('./api')
+  , Finder = require('../lib/relationship').Finder
 
   , async = require('async')
 
@@ -13,12 +14,9 @@ module.exports = {
 
 function attach(io) {
   io.on('connection', function (socket) {
-    socket.on('find-related', findRelated.bind(socket))
+    new Sock(socket)
+    // socket.on('find-related', findRelated.bind(socket))
   })
-}
-
-function findRelated(sid, person) {
-  
 }
 
 function Sock(sock) {
@@ -35,11 +33,24 @@ Sock.prototype = {
     close: function () {
       this.closed = true
     },
-    'find-related': function (sid, person) {
+    'find-related': function (sid, myid, person) {
       this.sid = sid
-  
+      var finder = new Finder(api.fscached, sid, myid, person)
+        , sock = this.sock
+      finder.on('finished', function (line) {
+        sock.emit('related-finished', line)
+      })
+      finder.on('cancelled', function (reason) {
+        sock.emit('related-cancelled', reason)
+      })
+      finder.on('update', function (num, gens) {
+        sock.emit('related-update', num, gens)
+      })
+      finder.on('error', function (error) {
+        console.error('ERROR while finding relationship...')
+      })
+      finder.start()
     }
-
   }
 }
 

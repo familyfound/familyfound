@@ -16,6 +16,7 @@
     "mbostock/d3": "*",
     "familyfound/fan": "*",
     "component/dialog": "*",
+    "component/cookie": "*",
     "familyfound/todo": "*",
     "familyfound/promise": "*",
     "familyfound/breadcrumb": "*",

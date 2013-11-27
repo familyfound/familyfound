@@ -4,6 +4,7 @@
     <title>Home | FamilyFound</title>
     <link rel="icon" type="image/png" href="/favicon.png">
     <link href="/css/build.css" rel="stylesheet" media="screen">
+    <script src="/socket.io/socket.io.js"></script>
   </head>
   <body>
     <div class="navbar navbar-inverse">
@@ -77,7 +78,39 @@
               <input type="text" placeholder="This person must be deceased" ng-model="relatedPersonId">
             </label>
             <button ng-click="findRelationship()" class="btn btn-primary">Find Relationship</button>
-            <div ng-show="findingRelationship" class="loading-indicator">{{ numSearched }} people searched</div>
+            <div ng-show="findingRelationship" class="loading-indicator"><i class="icon-spin icon-refresh"></i>{{ numSearched }} people searched, back {{ gensSearched }} generations</div>
+            <div ng-show="relatedError" class="alert alert-error">
+              <h3>Error finding relationship</h3>{{ relatedError }}
+            </div>
+            <div ng-show="relatedLine" class="relationship-line">
+              <div class="link person {{ relatedLine.link.rel }} {{ relatedLine.link.display.gender }}">
+                <div class="head"><a target="_blank" href="https://familysearch.org/tree/#view=ancestor&amp;person={{ relatedLine.link.id }}" class="name">{{ relatedLine.link.display.name }}</a><span class="lifes">{{ relatedLine.link.display.lifespan }}</span></div>
+                <div class="places">
+                  <div class="birth"><span class="date">{{ relatedLine.link.display.birthDate }}</span><span ng-show="relatedLine.link.display.birthPlace" class="place">{{ relatedLine.link.display.birthPlace }}</span></div>
+                  <div class="death"><span class="date">{{ relatedLine.link.display.deathDate }}</span><span ng-show="relatedLine.link.display.deathPlace" class="place">{{ relatedLine.link.display.deathPlace }}</span></div>
+                </div>{{ relatedLine.link.link }} | {{ relatedLine.link.rel }}
+              </div>
+              <div class="trees">
+                <div class="from-me">
+                  <div ng-repeat="person in relatedLine.up" class="person {{ person.rel }} {{ person.display.gender }}">
+                    <div class="head"><a target="_blank" href="https://familysearch.org/tree/#view=ancestor&amp;person={{ person.id }}" class="name">{{ person.display.name }}</a><span class="lifes">{{ person.display.lifespan }}</span></div>
+                    <div class="places">
+                      <div class="birth"><span class="date">{{ person.display.birthDate }}</span><span ng-show="person.display.birthPlace" class="place">{{ person.display.birthPlace }}</span></div>
+                      <div class="death"><span class="date">{{ person.display.deathDate }}</span><span ng-show="person.display.deathPlace" class="place">{{ person.display.deathPlace }}</span></div>
+                    </div>{{ person.rel }}
+                  </div>
+                </div>
+                <div class="to-them">
+                  <div ng-repeat="person in relatedLine.down" class="person {{ person.rel }} {{ person.display.gender }}">
+                    <div class="head"><a target="_blank" href="https://familysearch.org/tree/#view=ancestor&amp;person={{ person.id }}" class="name">{{ person.display.name }}</a><span class="lifes">{{ person.display.lifespan }}</span></div>
+                    <div class="places">
+                      <div class="birth"><span class="date">{{ person.display.birthDate }}</span><span ng-show="person.display.birthPlace" class="place">{{ person.display.birthPlace }}</span></div>
+                      <div class="death"><span class="date">{{ person.display.deathDate }}</span><span ng-show="person.display.deathPlace" class="place">{{ person.display.deathPlace }}</span></div>
+                    </div>{{ person.rel }}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </script>
         <script id="todoView.html" type="text/ng-template">
@@ -110,7 +143,7 @@
                   <h4>History</h4>
                   <div class="look-down">{{ focusedPerson.line.length }}<i class="icon-arrow-down"></i></div>
                   <div data-breadcrumb="focusedPerson.line" data-config="bcConfig"></div>
-                </div><a href="https://familysearch.org/tree/#view=ancestor&amp;person={{focusedPerson.id}}" target="_blank">View on FamilySearch.org</a>
+                </div><a href="https://familysearch.org/tree/#view=ancestor&amp;person={{focusedPerson.id}}" target="_blank" class="view-on-fs">View on FamilySearch.org</a>
                 <div ng-show="person" person-details="focusedPerson" class="person-details"></div>
               </div>
             </div>

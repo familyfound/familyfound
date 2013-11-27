@@ -26,7 +26,55 @@ block container
           | Person's ID
           input(type='text', placeholder='This person must be deceased', ng-model='relatedPersonId')
         button.btn.btn-primary(ng-click='findRelationship()') Find Relationship
-        .loading-indicator(ng-show='findingRelationship') {{ numSearched }} people searched
+        .loading-indicator(ng-show='findingRelationship')
+          i.icon-spin.icon-refresh
+          | {{ numSearched }} people searched, back {{ gensSearched }} generations
+        .alert.alert-error(ng-show='relatedError')
+          h3 Error finding relationship
+          | {{ relatedError }}
+        .relationship-line(ng-show='relatedLine')
+          .link.person(class='{{ relatedLine.link.rel }} {{ relatedLine.link.display.gender }}')
+            .head
+              a.name(target='_blank', href='https://familysearch.org/tree/#view=ancestor&person={{ relatedLine.link.id }}')
+                | {{ relatedLine.link.display.name }}
+              span.lifes {{ relatedLine.link.display.lifespan }}
+            .places
+              .birth
+                span.date {{ relatedLine.link.display.birthDate }}
+                span.place(ng-show='relatedLine.link.display.birthPlace') {{ relatedLine.link.display.birthPlace }}
+              .death
+                span.date {{ relatedLine.link.display.deathDate }}
+                span.place(ng-show='relatedLine.link.display.deathPlace') {{ relatedLine.link.display.deathPlace }}
+            | {{ relatedLine.link.link }} | {{ relatedLine.link.rel }}
+          .trees
+            .from-me
+              .person(ng-repeat='person in relatedLine.up', class='{{ person.rel }} {{ person.display.gender }}')
+                .head
+                  a.name(target='_blank', href='https://familysearch.org/tree/#view=ancestor&person={{ person.id }}')
+                    | {{ person.display.name }}
+                  span.lifes {{ person.display.lifespan }}
+                .places
+                  .birth
+                    span.date {{ person.display.birthDate }}
+                    span.place(ng-show='person.display.birthPlace') {{ person.display.birthPlace }}
+                  .death
+                    span.date {{ person.display.deathDate }}
+                    span.place(ng-show='person.display.deathPlace') {{ person.display.deathPlace }}
+                | {{ person.rel }}
+            .to-them
+              .person(ng-repeat='person in relatedLine.down', class='{{ person.rel }} {{ person.display.gender }}')
+                .head
+                  a.name(target='_blank', href='https://familysearch.org/tree/#view=ancestor&person={{ person.id }}')
+                    | {{ person.display.name }}
+                  span.lifes {{ person.display.lifespan }}
+                .places
+                  .birth
+                    span.date {{ person.display.birthDate }}
+                    span.place(ng-show='person.display.birthPlace') {{ person.display.birthPlace }}
+                  .death
+                    span.date {{ person.display.deathDate }}
+                    span.place(ng-show='person.display.deathPlace') {{ person.display.deathPlace }}
+                | {{ person.rel }}
     script(id='todoView.html', type='text/ng-template')
       .todos-view
         h4 Your To-do Items
@@ -66,7 +114,7 @@ block container
                 {{ focusedPerson.line.length }}
                 i.icon-arrow-down
               div(data-breadcrumb="focusedPerson.line", data-config="bcConfig")
-            a(href='https://familysearch.org/tree/#view=ancestor&person={{focusedPerson.id}}', target='_blank')
+            a.view-on-fs(href='https://familysearch.org/tree/#view=ancestor&person={{focusedPerson.id}}', target='_blank')
               | View on FamilySearch.org
             .person-details(ng-show="person", person-details="focusedPerson")
         // #photos-tree(data-fan="rootPerson", data-config='photosConfig')
