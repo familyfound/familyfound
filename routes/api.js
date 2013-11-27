@@ -4,6 +4,7 @@ var config = require('../lib/config')
 
   , oauth = require('./oauth')
   , getDb = require('../lib/db')
+  , relationship = require('../lib/relationship')
   , debug = require('debug')('familyfound:api')
   , fs = require('familysearch').single();
 
@@ -14,7 +15,25 @@ module.exports = {
   addRoutes: addRoutes
 }
 
+function getRelationship(req, res) {
+  var finder = new relationship.Finder(fscached, req.session.oauth.access_token, req.params.myid, req.params.id)
+  finder.on('finished', function (line) {
+    res.send(200, line)
+  })
+  finder.on('cancelled', function (reason) {
+    res.send(500, 'Cancelled: ' + reason)
+  })
+  finder.on('update', function (crawled, depth) {
+    console.log('Crawled: ', crawled, depth)
+  })
+  finder.on('error', function (error) {
+    console.log('error here')
+  })
+  finder.start()
+}
+
 function addRoutes(app) {
+  app.get('/api/relationship/:myid/:id', oauth.checkLogin, getRelationship);
   app.get('/api/person/photo/:id', oauth.checkLogin, getPersonPhoto);
   app.get('/api/person/sources/:id', oauth.checkLogin, getSources);
   app.get('/api/person/relations/:id', oauth.checkLogin, getPersonRelations);

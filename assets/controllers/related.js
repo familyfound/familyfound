@@ -8,6 +8,7 @@ module.exports = ['$scope', '$route', '$location', 'user', 'ffapi', 'io', functi
   // ex: 3up 0down = great-grandparents; 4up, 4down = third cousins
   $scope.numSearched = 0
 
+  /*
   io.on('finding-related', function (num, up, down) {
     $scope.numSearched = num
     $scope.$digest()
@@ -17,6 +18,7 @@ module.exports = ['$scope', '$route', '$location', 'user', 'ffapi', 'io', functi
     $scope.findingRelationship = false
     $scope.$digest()
   })
+  */
 
   user(function(user, usercached) {
     var personId = $route.current.params.id
@@ -24,7 +26,7 @@ module.exports = ['$scope', '$route', '$location', 'user', 'ffapi', 'io', functi
     $scope.relatedPersonId = personId
     if (!personId) return
     $scope.findingRelationship = true
-    io.emit('find-related', cookie('oauth'), personId);
+    // io.emit('find-related', cookie('oauth'), personId);
     if (!usercached) $scope.$digest()
   })
 

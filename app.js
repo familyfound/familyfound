@@ -7,12 +7,12 @@ var express = require('express')
   , server = http.createServer(app)
   , path = require('path')
   , fs = require('fs')
-  , io = require('socket.io').listen(server)
+  // , io = require('socket.io').listen(server)
 
   , db = require('./lib/db')
   , config = require('./lib/config')
 
-  , sockets = require('./routes/sockets')
+  // , sockets = require('./routes/sockets')
   , alerts = require('./routes/alerts')
   , oauth = require('./routes/oauth')
   , todos = require('./routes/todos')
@@ -23,7 +23,8 @@ app.set('port', process.env.PORT || config.PORT || 3000);
 app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
 app.use(express.favicon());
-// app.use(express.logger('dev'));
+// remove this for annoying comments
+app.use(express.logger('dev'));
 app.use(express.bodyParser());
 app.use(express.methodOverride());
 app.use(express.cookieParser(config.SECRET));
@@ -42,7 +43,7 @@ api.addRoutes(app);
 oauth.addRoutes(app);
 alerts.addRoutes(app);
 todos.addRoutes(app);
-sockets.attach(io)
+// sockets.attach(io)
 
 var index = function(req, res) {
   res.send(fs.readFileSync(path.join(__dirname, 'static', 'index.html')).toString('utf8'));

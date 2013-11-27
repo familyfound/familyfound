@@ -20,7 +20,12 @@ function checkLogin(req, res, next) {
   if (req.session.oauth && req.session.oauth.access_token) {
     return next();
   }
-  if (!req.headers.authorization) {
+  if (req.cookies.oauth) {
+    req.session.oauth = {
+      access_token: req.cookies.oauth
+    }
+    return next()
+  } else if (!req.headers.authorization) {
     return res.send(401, {error: 'Not logged in'});
   }
   // coming from extension, check the session token
