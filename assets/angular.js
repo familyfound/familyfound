@@ -7,6 +7,7 @@ var routes = {}
   , breadcrumb = require('breadcrumb')
   , personStatus = require('person-status')
   , angular = require('angularjs')
+  , cookie = require('cookie')
   , oauth = require('./oauth');
 
 var app = module.exports = angular.module('familyfound', ['ngResource', 'settings', 'fan', 'todo', 'breadcrumb', 'person-status'])
@@ -39,8 +40,9 @@ app.factory('user', function() {
   return promise(oauth.check, function (err, data) {
     if (err) {
       console.error('Error getting user:', err)
-      alert('Failed to login with familysearch. Please reload the page');
-      // window.location = window.location + ''
+      cookie('oauth', null)
+      // alert('Failed to login with familysearch. Please reload the page');
+      window.location = window.location + ''
       return
     }
     console.log('Got user!', data);
