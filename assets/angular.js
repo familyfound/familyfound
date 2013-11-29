@@ -34,14 +34,20 @@ app.addRoute = function (path, tpl, ctrl) {
   };
 };
 
+function delCookie(name) {
+  var c = cookie()
+  delete c[name]
+  document.cookie = Object.keys(c).map(function (n) {
+    return n + '=' + encodeURIComponent(c[n])
+  }).join('; ')
+}
+
 require('angular-resource');
 
 app.factory('user', function() {
   return promise(oauth.check, function (err, data) {
     if (err) {
       console.error('Error getting user:', err)
-      cookie('oauth', null)
-      // alert('Failed to login with familysearch. Please reload the page');
       window.location = window.location + ''
       return
     }

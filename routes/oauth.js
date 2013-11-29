@@ -65,9 +65,6 @@ function getData(token, next) {
 }
 
 function check_login(req, res) {
-  if (!req.session) {
-    return res.send({error: 'no session found'});
-  }
   if (req.cookies.oauth) {
     req.session.oauth = {
       access_token: req.cookies.oauth
@@ -77,8 +74,10 @@ function check_login(req, res) {
     res.cookie('already oauthed', req.session.oauth.access_token);
     return getData(req.session.oauth.access_token, function (err, data) {
       if (err) {
+        res.clearCookie('oauth')
+        req.session.oauth = null;
+        req.cookies.oauth = null;
         debug('Error check-login get data. Probably old session', err);
-        req.session.destroy();
         // am I allowed to do this?
         return check_login(req, res);
       }
